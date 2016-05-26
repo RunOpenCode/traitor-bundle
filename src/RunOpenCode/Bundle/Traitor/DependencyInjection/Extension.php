@@ -25,13 +25,34 @@ class Extension extends BaseExtension
         if ($config['use_common_traits']) {
             $config['inject'] = array_merge($config['inject'], $this->getCommonTraitsInjectionDefinitions());
         }
+
+        $container->setParameter('roc.traitor.injection_map', $config['inject']);
+
+        if (isset($config['filters'])) {
+
+            if (count($config['filters']['tags']) > 0) {
+                $container->setParameter('roc.traitor.filter.tags', $config['filters']['tags']);
+            }
+
+            if (count($config['filters']['tags']) > 0) {
+                $container->setParameter('roc.traitor.filter.namespaces', $config['filters']['namespaces']);
+            }
+        }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getAlias()
     {
         return 'run_open_code_traitor';
     }
 
+    /**
+     * For sake of productivity, below is the map of commonly used services.
+     *
+     * @return array Injection map
+     */
     protected function getCommonTraitsInjectionDefinitions()
     {
         return array(

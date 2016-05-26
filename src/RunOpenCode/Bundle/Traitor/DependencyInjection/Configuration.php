@@ -64,7 +64,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('filters')
-                    ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('tags')
                             ->prototype('scalar')

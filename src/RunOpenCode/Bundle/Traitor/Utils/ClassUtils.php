@@ -24,7 +24,7 @@ final class ClassUtils
      *
      * @throws \RuntimeException
      */
-    public static function isUsing($objectOrClass, $trait, $autoload = true)
+    public static function usesTrait($objectOrClass, $trait, $autoload = true)
     {
         if (is_object($objectOrClass)) {
             $objectOrClass = get_class($objectOrClass);
@@ -75,4 +75,29 @@ final class ClassUtils
             return ltrim($fqcn, '\\');
         }, $traits));
     }
+
+    /**
+     * Check if class is within certain namespace.
+     *
+     * @param string|object $objectOrClass Class to check.
+     * @param string $namespacePrefix Namespace prefix
+     * @return bool
+     */
+    public static function isWithinNamespace($objectOrClass, $namespacePrefix)
+    {
+        if (is_object($objectOrClass)) {
+            $objectOrClass = get_class($objectOrClass);
+        }
+
+        if (!is_string($objectOrClass)) {
+            throw new \RuntimeException(sprintf('FQCN string expected, got: "%s".', gettype($objectOrClass)));
+        }
+
+        $objectOrClass = ltrim($objectOrClass, '\\');
+        $namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\') . '\\';
+
+        return strpos($objectOrClass, $namespacePrefix) === 0;
+    }
+
+
 }

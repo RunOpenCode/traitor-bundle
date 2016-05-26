@@ -9,13 +9,26 @@
  */
 namespace RunOpenCode\Bundle\Traitor;
 
+use RunOpenCode\Bundle\Traitor\DependencyInjection\CompilerPass;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class TraitorBundle extends Bundle
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getContainerExtension()
     {
         return new Extension();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function build(ContainerBuilder $container)
+    {
+        $container->addCompilerPass(new CompilerPass());
     }
 }
