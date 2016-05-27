@@ -1,6 +1,14 @@
 Traitor bundle
 ==============
 
+[![Packagist](https://img.shields.io/packagist/v/RunOpenCode/traitor-bundle.svg)](https://packagist.org/packages/runopencode/traitor-bundle)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/RunOpenCode/traitor-bundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/RunOpenCode/traitor-bundle/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/RunOpenCode/traitor-bundle/badges/build.png?b=master)](https://scrutinizer-ci.com/g/RunOpenCode/traitor-bundle/build-status/master)
+[![Code Coverage](https://scrutinizer-ci.com/g/RunOpenCode/traitor-bundle/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/RunOpenCode/traitor-bundle/?branch=master)
+[![Build Status](https://travis-ci.org/RunOpenCode/traitor-bundle.svg?branch=master)](https://travis-ci.org/RunOpenCode/traitor-bundle)
+
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/3a4f81a7-6227-40c5-89f5-638203d9e7e6/big.png)](https://insight.sensiolabs.com/projects/3a4f81a7-6227-40c5-89f5-638203d9e7e6)
+
 *Symfony service container compiler pass which defines additional
 setter injection of services/parameters/values based on used traits in 
 service classes.
