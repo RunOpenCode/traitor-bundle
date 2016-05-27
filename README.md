@@ -133,7 +133,28 @@ bundles**, for obvious reasons.
 
 ## Configuration
 
-Example of full configuration is given bellow:
+Require this bundle via composer, `composer require runopencode/traitor-bundle`
+and register it in your `AppKernel.php`:
+
+    class AppKernel extends Kernel
+    {
+        public function registerBundles()
+        {
+            $bundles = [
+            
+                ...
+                
+                new RunOpenCode\Bundle\Traitor\TraitorBundle()
+                
+                ...
+                
+            ];
+            return $bundles;
+        }
+    
+    }
+
+and configure it, example of full configuration is given bellow:
 
     run_open_code_traitor:
         use_common_traits: false             
