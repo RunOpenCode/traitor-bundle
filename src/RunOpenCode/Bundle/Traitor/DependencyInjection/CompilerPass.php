@@ -29,8 +29,8 @@ class CompilerPass implements CompilerPassInterface
         if ($container->hasParameter('roc.traitor.filter.tags') || $container->hasParameter('roc.traitor.filter.namespaces')) {
 
             $definitions = array_merge(
-                $container->hasParameter('roc.traitor.filter.tags') ? $this->getDefinitionsFromTags($container, $container->hasParameter('roc.traitor.filter.tags')) : array(),
-                $container->hasParameter('roc.traitor.filter.namespaces') ? $this->getDefinitionsFromClassNamespaces($container, $container->hasParameter('roc.traitor.filter.namespaces')) : array()
+                $container->hasParameter('roc.traitor.filter.tags') ? $this->getDefinitionsFromTags($container, $container->getParameter('roc.traitor.filter.tags')) : array(),
+                $container->hasParameter('roc.traitor.filter.namespaces') ? $this->getDefinitionsFromClassNamespaces($container, $container->getParameter('roc.traitor.filter.namespaces')) : array()
             );
 
         } else {
@@ -86,7 +86,7 @@ class CompilerPass implements CompilerPassInterface
      * Get definitions from container based on service tag filter
      *
      * @param ContainerBuilder $container
-     * @param array|null $filters Tag names
+     * @param array|null $tags Tag names
      * @return Definition[] Definitions indexed by service ID
      */
     protected function getDefinitionsFromTags(ContainerBuilder $container, array $tags = null)
