@@ -128,3 +128,4 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
         ));
     }
 }
+
