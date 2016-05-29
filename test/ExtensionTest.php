@@ -1,61 +1,23 @@
 <?php
-/*
- * This file is part of the  TraitorBundle, an RunOpenCode project.
- *
- * (c) 2016 RunOpenCode
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-namespace RunOpenCode\Bundle\Traitor\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\Extension as BaseExtension;
+namespace RunOpenCode\Bundle\Traitor\Tests;
 
-class Extension extends BaseExtension
+use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
+use RunOpenCode\Bundle\Traitor\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
+
+class ExtensionTest extends AbstractExtensionTestCase
 {
     /**
-     * {@inheritdoc}
+     * @test
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function loadCommonTraitsInInjectionMap()
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $this->load(array(
+            'use_common_traits' => true
+        ));
 
-        if ($config['use_common_traits']) {
-            $config['inject'] = array_merge($config['inject'], $this->getCommonTraitsInjectionDefinitions());
-        }
-
-        $container->setParameter('roc.traitor.injection_map', $config['inject']);
-
-        if (isset($config['filters'])) {
-
-            if (count($config['filters']['tags']) > 0) {
-                $container->setParameter('roc.traitor.filter.tags', $config['filters']['tags']);
-            }
-
-            if (count($config['filters']['namespaces']) > 0) {
-                $container->setParameter('roc.traitor.filter.namespaces', $config['filters']['namespaces']);
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlias()
-    {
-        return 'run_open_code_traitor';
-    }
-
-    /**
-     * For sake of productivity, below is the map of commonly used services.
-     *
-     * @return array Injection map
-     */
-    protected function getCommonTraitsInjectionDefinitions()
-    {
-        return array(
+        $this->assertContainerBuilderHasParameter('roc.traitor.injection_map', array(
             'Symfony\Component\DependencyInjection\ContainerAwareTrait' => array('setContainer', array('@service_container')),
             'Psr\Log\LoggerAwareTrait' => array('setLogger', array('@logger')),
             'RunOpenCode\Bundle\Traitor\Traits\DoctrineAwareTrait' => array('setDoctrine', array('@doctrine')),
@@ -71,7 +33,43 @@ class Extension extends BaseExtension
             'RunOpenCode\Bundle\Traitor\Traits\TwigAwareTrait' => array('setTwig', array('@twig')),
             'RunOpenCode\Bundle\Traitor\Traits\TranslatorAwareTrait' => array('setTranslator', array('@translator')),
             'RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait' => array('setValidator', array('@validator'))
+        ));
+    }
+
+    /**
+     * @test
+     */
+    public function setFilters()
+    {
+        $this->load(array(
+            'filters' => array(
+                'namespaces' => array(
+                    'RunOpenCode\Bundle\TestNamespace1',
+                    'RunOpenCode\Bundle\TestNamespace2'
+                ),
+                'tags' => array(
+                    'form.type'
+                )
+            )
+        ));
+
+        $this->assertContainerBuilderHasParameter('roc.traitor.filter.namespaces', array(
+            'RunOpenCode\Bundle\TestNamespace1',
+            'RunOpenCode\Bundle\TestNamespace2'
+        ));
+
+        $this->assertContainerBuilderHasParameter('roc.traitor.filter.tags', array(
+            'form.type'
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getContainerExtensions()
+    {
+        return array(
+            new Extension()
         );
     }
 }
-
