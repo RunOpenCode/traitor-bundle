@@ -27,8 +27,8 @@ science.**
 
 **In one sentence**: If your class is registered as service in service container
 and if that class uses traits like, per example, `\Psr\Log\LoggerAwareTrait`, 
-this bundle will redefine your service adding a method call in its definition
-injecting, appropriate service, as per example, a `logger`. 
+this bundle will redefine your service adding a method call in its definition,
+injecting appropriate service, as per example, a `logger`. 
  
 So, instead of defining setter injection for your service, it is sufficient
 enough to use some kind of provided, or user defined, `*AwareTrait` and this
@@ -79,7 +79,10 @@ In example above, a good practice of service injection is exercised. However,
 sometimes, this good practice can not be satisfied within a reasonable amount 
 of time and effort. 
 
-How about to just use some trait, and some kind of *"magic"* will to the rest
+#### Traitor bundle in the rescue
+
+Instead of doing as in example stated above, how about to just use some
+trait, and some kind of *"magic"* will to the rest
 of it? Our previous example would be as easy as doing the following:
 
     class MyService 
@@ -89,6 +92,10 @@ of it? Our previous example would be as easy as doing the following:
         public function __construct() {  }
     }
 
+
+And this is just good enough - you just use appropriate trait, and compiler
+pass within this bundle will provide your service class with appropriate setter
+injection.
 
 #### Motivation for developing this bundle
 
