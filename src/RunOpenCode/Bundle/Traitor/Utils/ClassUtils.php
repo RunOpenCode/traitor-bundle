@@ -11,7 +11,7 @@ namespace RunOpenCode\Bundle\Traitor\Utils;
 
 final class ClassUtils
 {
-    private final function __construct() { /** noop */ }
+    final private function __construct() { /** noop */ }
 
     /**
      * Check if class uses trait.
