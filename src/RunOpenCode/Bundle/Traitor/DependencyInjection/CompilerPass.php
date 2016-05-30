@@ -124,7 +124,7 @@ class CompilerPass implements CompilerPassInterface
 
             foreach ($injectionMap as $trait => $injectionDefinition) {
 
-                if (ClassUtils::usesTrait($class, $trait)) {
+                if (class_exists($class) && ClassUtils::usesTrait($class, $trait)) {
 
                     $arguments = array();
 

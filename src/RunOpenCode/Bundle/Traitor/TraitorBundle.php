@@ -11,6 +11,7 @@ namespace RunOpenCode\Bundle\Traitor;
 
 use RunOpenCode\Bundle\Traitor\DependencyInjection\CompilerPass;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -29,6 +30,6 @@ class TraitorBundle extends Bundle
      */
     public function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new CompilerPass());
+        $container->addCompilerPass(new CompilerPass(), PassConfig::TYPE_OPTIMIZE);
     }
 }
