@@ -185,7 +185,7 @@ class CompilerPass implements CompilerPassInterface
 
             return true;
 
-        }, $this), ARRAY_FILTER_USE_BOTH);
+        }, $this), 1);
 
         return $result;
     }
