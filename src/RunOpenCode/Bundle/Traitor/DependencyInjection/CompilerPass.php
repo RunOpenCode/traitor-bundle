@@ -157,35 +157,34 @@ class CompilerPass implements CompilerPassInterface
      */
     protected function filterExcludedDefinitions(ContainerBuilder $container, array $definitions)
     {
-        $excludedServices = $container->hasParameter('roc.traitor.exclude.services') ? $container->getParameter('roc.traitor.exclude.services') : null;
-        $excludedClasses = $container->hasParameter('roc.traitor.exclude.classes') ? $container->getParameter('roc.traitor.exclude.classes') : null;
-        $excludedNamespaces = $container->hasParameter('roc.traitor.exclude.namespaces') ? $container->getParameter('roc.traitor.exclude.namespaces') : null;
+        $excludedServices = $container->hasParameter('roc.traitor.exclude.services') ? $container->getParameter('roc.traitor.exclude.services') : array();
+        $excludedClasses = $container->hasParameter('roc.traitor.exclude.classes') ? $container->getParameter('roc.traitor.exclude.classes') : array();
+        $excludedNamespaces = $container->hasParameter('roc.traitor.exclude.namespaces') ? $container->getParameter('roc.traitor.exclude.namespaces') : array();
 
-        $result = array_filter($definitions, \Closure::bind(function(Definition $definition, $serviceId) use ($excludedServices, $excludedClasses, $excludedNamespaces) {
 
-            if (null !== $excludedServices && in_array($serviceId, $excludedServices, true)) {
-                return false;
+        $result = array();
+
+        foreach ($definitions as $serviceId => $definition) {
+
+            if (in_array($serviceId, $excludedServices, true)) {
+                continue;
             }
 
             $serviceFqcn = ltrim($definition->getClass(), '\\');
 
-            if (null !== $excludedClasses && in_array($serviceFqcn, $excludedClasses, true)) {
-                return false;
+            if (in_array($serviceFqcn, $excludedClasses, true)) {
+                continue;
             }
 
-            if (null !== $excludedNamespaces) {
+            foreach ($excludedNamespaces as $excludedNamespace) {
 
-                foreach ($excludedNamespaces as $excludedNamespace) {
-
-                    if (strpos($serviceFqcn, $excludedNamespace) === 0) {
-                        return false;
-                    }
+                if (strpos($serviceFqcn, $excludedNamespace) === 0) {
+                    continue 2;
                 }
             }
 
-            return true;
-
-        }, $this), 1);
+            $result[$serviceId] = $definition;
+        }
 
         return $result;
     }
