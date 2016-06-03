@@ -112,6 +112,78 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     }
 
     /**
+     * @test
+     */
+    public function excludeService()
+    {
+        $this->registerDummyServices();
+
+        $this->setParameter('roc.traitor.exclude.services', array('service_two', 'service_three'));
+
+        $this->compile();
+
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
+            'service_one',
+            'setLogger',
+            array(
+                new Reference('logger')
+            )
+        );
+
+        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
+        $this->assertSame(0, count($this->container->findDefinition('service_three')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function excludeClass()
+    {
+        $this->registerDummyServices();
+
+        $this->setParameter('roc.traitor.exclude.classes', array(
+            \Test\NamespacePrefix\One\ServiceClass1::class,
+            \Test\NamespacePrefix\Two\ServiceClass2::class
+        ));
+
+        $this->compile();
+
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
+            'service_three',
+            'setLogger',
+            array(
+                new Reference('logger')
+            )
+        );
+
+        $this->assertSame(0, count($this->container->findDefinition('service_one')->getMethodCalls()));
+        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function excludeNamespace()
+    {
+        $this->registerDummyServices();
+
+        $this->setParameter('roc.traitor.exclude.namespaces', array('Test\\NamespacePrefix\\'));
+
+        $this->compile();
+
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
+            'service_three',
+            'setLogger',
+            array(
+                new Reference('logger')
+            )
+        );
+
+        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
+        $this->assertSame(0, count($this->container->findDefinition('service_one')->getMethodCalls()));
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function registerCompilerPass(ContainerBuilder $container)

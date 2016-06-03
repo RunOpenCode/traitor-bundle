@@ -51,8 +51,8 @@ class ExtensionTest extends AbstractExtensionTestCase
         $this->load(array(
             'filters' => array(
                 'namespaces' => array(
-                    'RunOpenCode\Bundle\TestNamespace1',
-                    'RunOpenCode\Bundle\TestNamespace2'
+                    '\\RunOpenCode\\Bundle\\TestNamespace1\\',
+                    '\\RunOpenCode\\Bundle\\TestNamespace2'
                 ),
                 'tags' => array(
                     'form.type'
@@ -61,8 +61,8 @@ class ExtensionTest extends AbstractExtensionTestCase
         ));
 
         $this->assertContainerBuilderHasParameter('roc.traitor.filter.namespaces', array(
-            'RunOpenCode\Bundle\TestNamespace1',
-            'RunOpenCode\Bundle\TestNamespace2'
+            'RunOpenCode\\Bundle\\TestNamespace1\\',
+            'RunOpenCode\\Bundle\\TestNamespace2\\'
         ));
 
         $this->assertContainerBuilderHasParameter('roc.traitor.filter.tags', array(

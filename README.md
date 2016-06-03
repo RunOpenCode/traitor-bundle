@@ -178,14 +178,19 @@ and configure it, example of full configuration is given bellow:
         filters:
             tags: [ 'form.type', 'other_tag' ]
             namespaces: [ '\Namespace\Prefix1', 'Namespace\Prefix2' ]
+        exclude:
+            services: [ 'my.service.to_exclude' ]
+            classes: [ '\Exclude\Services\ThatUsesThisClass', '\Or\Uses\ThisClass' ]
+            namespaces: [ '\Exclude\AllServices\WithClasses\WithinThisNamespace\' ]
+            
 
 
-- `use_common_traits`: This bundle provides you with common traits
+- `use_common_traits`: Optional. This bundle provides you with common traits
 within `\RunOpenCode\Bundle\Traitor\Traits` namespace to boost up
 your productivity. If you are using them, set this parameter to `true`,
 it will add those traits to injection map. Full list of traits which 
 you can use *out-of-the-box* are given bellow.
-- `inject`: Associative array of traits which should be checked for usage,
+- `inject`: Optional. Associative array of traits which should be checked for usage,
 and if they are used in service class, trait map defines setter injection
 in same way as Symfony `calls` definition does, an array, with first parameter
 that defines a method to call, and second parameter as array of arguments to
@@ -194,6 +199,8 @@ pass to that method call.
 narrow down the subset to certain namespaces and/or service tags. Determining 
 which class uses which trait can be expensive, this bundle checks both inheritance
 as well as related traits usage (e.g. if trait uses trait).
+- `exclude`: Optional. You can exclude certain services, service classes and 
+namespaces to be even considered for this kind of injection.
 
 ### Provided common traits
 

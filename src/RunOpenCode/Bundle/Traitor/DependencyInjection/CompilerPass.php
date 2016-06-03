@@ -35,8 +35,10 @@ class CompilerPass implements CompilerPassInterface
 
         } else {
 
-            $definitions = $this->getDefinitionsFromClassNamespaces($container);
+            $definitions = $this->getDefinitionsFromClassNamespaces($container, array());
         }
+
+        $definitions = $this->filterExcludedDefinitions($container, $definitions);
 
         $this->processInjection($definitions, $container->getParameter('roc.traitor.injection_map'));
     }
@@ -45,10 +47,10 @@ class CompilerPass implements CompilerPassInterface
      * Get definitions from container based on namespace filter
      *
      * @param ContainerBuilder $container
-     * @param array|null $filters Namespace prefixes
+     * @param array $filters Namespace prefixes
      * @return Definition[] Definitions indexed by service ID
      */
-    protected function getDefinitionsFromClassNamespaces(ContainerBuilder $container, array $filters = null)
+    protected function getDefinitionsFromClassNamespaces(ContainerBuilder $container, array $filters)
     {
         $result = array();
 
@@ -59,7 +61,7 @@ class CompilerPass implements CompilerPassInterface
 
             $class = $definition->getClass();
 
-            if (null !== $filters && count($filters) > 0) {
+            if (count($filters) > 0) {
 
                 $found = false;
 
@@ -86,14 +88,14 @@ class CompilerPass implements CompilerPassInterface
      * Get definitions from container based on service tag filter
      *
      * @param ContainerBuilder $container
-     * @param array|null $tags Tag names
+     * @param array $tags Tag names
      * @return Definition[] Definitions indexed by service ID
      */
-    protected function getDefinitionsFromTags(ContainerBuilder $container, array $tags = null)
+    protected function getDefinitionsFromTags(ContainerBuilder $container, array $tags)
     {
         $result = array();
 
-        if (null !== $tags && count($tags) > 0) {
+        if (count($tags) > 0) {
 
             foreach ($tags as $tag) {
 
@@ -115,31 +117,76 @@ class CompilerPass implements CompilerPassInterface
      */
     protected function processInjection(array $definitions, array $injectionMap)
     {
-        /**
-         * @var Definition $definition
-         */
-        foreach ($definitions as $definition) {
+        if (count($injectionMap) > 0 && count($definitions) > 0) {
 
-            $class = $definition->getClass();
+            /**
+             * @var Definition $definition
+             */
+            foreach ($definitions as $definition) {
 
-            foreach ($injectionMap as $trait => $injectionDefinition) {
+                $class = $definition->getClass();
 
-                if (class_exists($class) && ClassUtils::usesTrait($class, $trait)) {
+                foreach ($injectionMap as $trait => $injectionDefinition) {
 
-                    $arguments = array();
+                    if (class_exists($class) && ClassUtils::usesTrait($class, $trait)) {
 
-                    foreach ($injectionDefinition[1] as $argument) {
+                        $arguments = array();
 
-                        if ('@' === $argument[0]) {
-                            $arguments[] = new Reference(ltrim($argument, '@'));
-                        } else {
-                            $arguments[] = $argument;
+                        foreach ($injectionDefinition[1] as $argument) {
+
+                            if ('@' === $argument[0]) {
+                                $arguments[] = new Reference(ltrim($argument, '@'));
+                            } else {
+                                $arguments[] = $argument;
+                            }
                         }
-                    }
 
-                    $definition->addMethodCall($injectionDefinition['0'], $arguments);
+                        $definition->addMethodCall($injectionDefinition['0'], $arguments);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Remove excluded definitions from definitions collection.
+     *
+     * @param ContainerBuilder $container
+     * @param Definition[] $definitions
+     * @return Definition[]
+     */
+    protected function filterExcludedDefinitions(ContainerBuilder $container, array $definitions)
+    {
+        $excludedServices = $container->hasParameter('roc.traitor.exclude.services') ? $container->getParameter('roc.traitor.exclude.services') : null;
+        $excludedClasses = $container->hasParameter('roc.traitor.exclude.classes') ? $container->getParameter('roc.traitor.exclude.classes') : null;
+        $excludedNamespaces = $container->hasParameter('roc.traitor.exclude.namespaces') ? $container->getParameter('roc.traitor.exclude.namespaces') : null;
+
+        $result = array_filter($definitions, \Closure::bind(function(Definition $definition, $serviceId) use ($excludedServices, $excludedClasses, $excludedNamespaces) {
+
+            if (null !== $excludedServices && in_array($serviceId, $excludedServices, true)) {
+                return false;
+            }
+
+            $serviceFqcn = ltrim($definition->getClass(), '\\');
+
+            if (null !== $excludedClasses && in_array($serviceFqcn, $excludedClasses, true)) {
+                return false;
+            }
+
+            if (null !== $excludedNamespaces) {
+
+                foreach ($excludedNamespaces as $excludedNamespace) {
+
+                    if (strpos($serviceFqcn, $excludedNamespace) === 0) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+
+        }, $this), ARRAY_FILTER_USE_BOTH);
+
+        return $result;
     }
 }
