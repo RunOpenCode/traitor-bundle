@@ -13,6 +13,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 trait TokenStorageAwareTrait
 {
+    /**
+     * @var TokenStorageInterface
+     */
     protected $tokenStorage;
 
     public function setTokenStorage(TokenStorageInterface $tokenStorage)
