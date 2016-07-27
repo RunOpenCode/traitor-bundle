@@ -67,7 +67,8 @@ class Extension extends BaseExtension
                 'RunOpenCode\Bundle\Traitor\Traits\SessionAwareTrait' => array('setSession', array('@session')),
                 'RunOpenCode\Bundle\Traitor\Traits\TwigAwareTrait' => array('setTwig', array('@twig')),
                 'RunOpenCode\Bundle\Traitor\Traits\TranslatorAwareTrait' => array('setTranslator', array('@translator')),
-                'RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait' => array('setValidator', array('@validator'))
+                'RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait' => array('setValidator', array('@validator')),
+                'RunOpenCode\Bundle\Traitor\Traits\TokenStorageAwareTrait' => array('setTokenStorage', array('@security.token_storage'))
             ));
         }
 

@@ -224,6 +224,7 @@ map will be appended with following definitions as well:
     'RunOpenCode\Bundle\Traitor\Traits\TwigAwareTrait': ['setTwig', ['@twig']]
     'RunOpenCode\Bundle\Traitor\Traits\TranslatorAwareTrait': ['setTranslator', ['@translator']]
     'RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait': ['setValidator', ['@validator']]
+    'RunOpenCode\Bundle\Traitor\Traits\TokenStorageAwareTrait': ['setTokenStorage', ['@security.token_storage']]
     
 In general, common traits will help you to boost your productivity when 
 injecting following services:
@@ -243,3 +244,4 @@ injecting following services:
 - `twig`
 - `translator`
 - `validator`
+- `security.token_storage`
