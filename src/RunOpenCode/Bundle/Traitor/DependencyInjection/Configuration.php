@@ -48,13 +48,6 @@ class Configuration implements ConfigurationInterface
                                     return true;
                                 }
 
-                                foreach ($value[1] as $arg) {
-
-                                    if (!is_string($arg)) {
-                                        return true;
-                                    }
-                                }
-
                                 return false;
                             })
                             ->thenInvalid('Expected proper setter injection definition.')
