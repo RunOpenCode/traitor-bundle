@@ -2,12 +2,15 @@
 /*
  * This file is part of the  TraitorBundle, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 namespace RunOpenCode\Bundle\Traitor\Utils;
+
+use RunOpenCode\Bundle\Traitor\Exception\InvalidArgumentException;
+use RunOpenCode\Bundle\Traitor\Exception\RuntimeException;
 
 final class ClassUtils
 {
@@ -22,7 +25,8 @@ final class ClassUtils
      *
      * @return bool TRUE if class uses trait.
      *
-     * @throws \RuntimeException
+     * @throws \RunOpenCode\Bundle\Traitor\Exception\InvalidArgumentException
+     * @throws \RunOpenCode\Bundle\Traitor\Exception\RuntimeException
      */
     public static function usesTrait($objectOrClass, $trait, $autoload = true)
     {
@@ -31,7 +35,11 @@ final class ClassUtils
         }
 
         if (!is_string($objectOrClass)) {
-            throw new \RuntimeException(sprintf('FQCN string expected, got: "%s".', gettype($objectOrClass)));
+            throw new InvalidArgumentException(sprintf('Full qualified class name expected, got: "%s".', gettype($objectOrClass)));
+        }
+
+        if (!class_exists($objectOrClass)) {
+            throw new RuntimeException(sprintf('Class "%s" does not exists or it can not be autoloaded.', $objectOrClass));
         }
 
         if (in_array(ltrim($trait, '\\'), self::getTraits($objectOrClass, $autoload), false)) {
@@ -44,19 +52,34 @@ final class ClassUtils
     /**
      * Get ALL traits used by one class.
      *
-     * @param string $class FQCN.
+     * @param object|string $objectOrClass Instance of class or FQCN
      * @param bool $autoload Weather to autoload class.
+     *
+     * @throws \RunOpenCode\Bundle\Traitor\Exception\InvalidArgumentException
+     * @throws \RunOpenCode\Bundle\Traitor\Exception\RuntimeException
      *
      * @return array Used traits.
      */
-    public static function getTraits($class, $autoload = true)
+    public static function getTraits($objectOrClass, $autoload = true)
     {
+        if (is_object($objectOrClass)) {
+            $objectOrClass = get_class($objectOrClass);
+        }
+
+        if (!is_string($objectOrClass)) {
+            throw new InvalidArgumentException(sprintf('Full qualified class name expected, got: "%s".', gettype($objectOrClass)));
+        }
+
+        if (!class_exists($objectOrClass)) {
+            throw new RuntimeException(sprintf('Class "%s" does not exists or it can not be autoloaded.', $objectOrClass));
+        }
+
         $traits = [];
 
         // Get traits of all parent classes
         do {
-            $traits = array_merge(class_uses($class, $autoload), $traits);
-        } while ($class = get_parent_class($class));
+            $traits = array_merge(class_uses($objectOrClass, $autoload), $traits);
+        } while ($objectOrClass = get_parent_class($objectOrClass));
 
         // Get traits of all parent traits
         $traitsToSearch = $traits;
@@ -71,7 +94,7 @@ final class ClassUtils
             $traits = array_merge(class_uses($trait, $autoload), $traits);
         }
 
-        return array_unique(array_map(function($fqcn) {
+        return array_unique(array_map(function ($fqcn) {
             return ltrim($fqcn, '\\');
         }, $traits));
     }
@@ -81,7 +104,11 @@ final class ClassUtils
      *
      * @param string|object $objectOrClass Class to check.
      * @param string $namespacePrefix Namespace prefix
+     *
      * @return bool
+     *
+     * @throws \RunOpenCode\Bundle\Traitor\Exception\InvalidArgumentException
+     * @throws \RunOpenCode\Bundle\Traitor\Exception\RuntimeException
      */
     public static function isWithinNamespace($objectOrClass, $namespacePrefix)
     {
@@ -90,14 +117,16 @@ final class ClassUtils
         }
 
         if (!is_string($objectOrClass)) {
-            throw new \RuntimeException(sprintf('FQCN string expected, got: "%s".', gettype($objectOrClass)));
+            throw new InvalidArgumentException(sprintf('Full qualified class name string expected, got: "%s".', gettype($objectOrClass)));
+        }
+
+        if (!class_exists($objectOrClass)) {
+            throw new RuntimeException(sprintf('Class "%s" does not exists or it can not be autoloaded.', $objectOrClass));
         }
 
         $objectOrClass = ltrim($objectOrClass, '\\');
-        $namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\') . '\\';
+        $namespacePrefix = rtrim(ltrim($namespacePrefix, '\\'), '\\').'\\';
 
         return strpos($objectOrClass, $namespacePrefix) === 0;
     }
-
-
 }

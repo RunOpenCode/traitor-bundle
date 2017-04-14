@@ -171,7 +171,7 @@ and register it in your `AppKernel.php`:
 
 and configure it, example of full configuration is given bellow:
 
-    run_open_code_traitor:
+    runopencode_traitor:
         use_common_traits: false             
         inject:
             'Full\Qualified\Trait\Namespace': [ 'setterMethodName', [ '@service_name', 'or_parameter_value' ]]

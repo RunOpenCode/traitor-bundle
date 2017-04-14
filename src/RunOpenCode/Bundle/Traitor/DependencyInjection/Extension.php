@@ -2,7 +2,7 @@
 /*
  * This file is part of the  TraitorBundle, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,6 +17,30 @@ class Extension extends BaseExtension
     /**
      * {@inheritdoc}
      */
+    public function getAlias()
+    {
+        return 'runopencode_traitor';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNamespace()
+    {
+        return 'http://www.runopencode.com/xsd-schema/traitor-bundle';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getXsdValidationBasePath()
+    {
+        return __DIR__.'/../Resources/config/schema';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -27,14 +51,6 @@ class Extension extends BaseExtension
             ->setFiltersAsContainerParameter($config, $container)
             ->setExclusionsAsContainerParameter($config, $container)
             ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlias()
-    {
-        return 'run_open_code_traitor';
     }
 
     /**
@@ -72,7 +88,7 @@ class Extension extends BaseExtension
             ));
         }
 
-        $container->setParameter('roc.traitor.injection_map', $injection);
+        $container->setParameter('runopencode.traitor.injection_map', $injection);
 
         return $this;
     }
@@ -87,12 +103,12 @@ class Extension extends BaseExtension
         if (isset($config['filters'])) {
 
             if (count($config['filters']['tags']) > 0) {
-                $container->setParameter('roc.traitor.filter.tags', $config['filters']['tags']);
+                $container->setParameter('runopencode.traitor.filter.tags', $config['filters']['tags']);
             }
 
             if (count($config['filters']['namespaces']) > 0) {
 
-                $container->setParameter('roc.traitor.filter.namespaces', array_map(function($namespace) {
+                $container->setParameter('runopencode.traitor.filter.namespaces', array_map(function($namespace) {
                     return rtrim(ltrim($namespace, '\\'), '\\') . '\\';
                 }, $config['filters']['namespaces']));
             }
@@ -111,19 +127,19 @@ class Extension extends BaseExtension
         if (isset($config['exclude'])) {
 
             if (count($config['exclude']['services']) > 0) {
-                $container->setParameter('roc.traitor.exclude.services', $config['exclude']['services']);
+                $container->setParameter('runopencode.traitor.exclude.services', $config['exclude']['services']);
             }
 
             if (count($config['exclude']['namespaces']) > 0) {
 
-                $container->setParameter('roc.traitor.exclude.namespaces', array_map(function($namespace) {
+                $container->setParameter('runopencode.traitor.exclude.namespaces', array_map(function($namespace) {
                     return rtrim(ltrim($namespace, '\\'), '\\') . '\\';
                 }, $config['exclude']['namespaces']));
             }
 
             if (count($config['exclude']['classes']) > 0) {
 
-                $container->setParameter('roc.traitor.exclude.classes', array_map(function($fqcn) {
+                $container->setParameter('runopencode.traitor.exclude.classes', array_map(function($fqcn) {
                     return ltrim($fqcn, '\\');
                 }, $config['exclude']['classes']));
             }

@@ -2,12 +2,12 @@
 /*
  * This file is part of the  TraitorBundle, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RunOpenCode\Bundle\Traitor\Tests;
+namespace RunOpenCode\Bundle\Traitor\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\CompilerPass;
@@ -21,7 +21,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         parent::setUp();
 
-        require_once __DIR__ . '/mocks.php';
+        require_once __DIR__ . '/../Fixtures/mocks.php';
     }
 
     /**
@@ -31,7 +31,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         $this->registerDummyServices();
 
-        $this->setParameter('roc.traitor.filter.namespaces', array(
+        $this->setParameter('runopencode.traitor.filter.namespaces', array(
             '\\Test\\Deeper\\NamespacePrefix\\'
         ));
 
@@ -57,7 +57,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         $this->registerDummyServices();
 
-        $this->setParameter('roc.traitor.filter.tags', array(
+        $this->setParameter('runopencode.traitor.filter.tags', array(
             'test.tag'
         ));
 
@@ -118,7 +118,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         $this->registerDummyServices();
 
-        $this->setParameter('roc.traitor.exclude.services', array('service_two', 'service_three'));
+        $this->setParameter('runopencode.traitor.exclude.services', array('service_two', 'service_three'));
 
         $this->compile();
 
@@ -141,7 +141,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         $this->registerDummyServices();
 
-        $this->setParameter('roc.traitor.exclude.classes', array(
+        $this->setParameter('runopencode.traitor.exclude.classes', array(
             \Test\NamespacePrefix\One\ServiceClass1::class,
             \Test\NamespacePrefix\Two\ServiceClass2::class
         ));
@@ -167,7 +167,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         $this->registerDummyServices();
 
-        $this->setParameter('roc.traitor.exclude.namespaces', array('Test\\NamespacePrefix\\'));
+        $this->setParameter('runopencode.traitor.exclude.namespaces', array('Test\\NamespacePrefix\\'));
 
         $this->compile();
 
@@ -202,7 +202,7 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
         $this->setDefinition('service_two', $service2);
         $this->setDefinition('service_three', $service3);
 
-        $this->setParameter('roc.traitor.injection_map', array(
+        $this->setParameter('runopencode.traitor.injection_map', array(
             'Psr\Log\LoggerAwareTrait' => array('setLogger', array('@logger'))
         ));
     }

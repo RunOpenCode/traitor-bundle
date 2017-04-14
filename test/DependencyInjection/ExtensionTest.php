@@ -2,16 +2,15 @@
 /*
  * This file is part of the  TraitorBundle, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RunOpenCode\Bundle\Traitor\Tests;
+namespace RunOpenCode\Bundle\Traitor\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 class ExtensionTest extends AbstractExtensionTestCase
 {
@@ -24,7 +23,7 @@ class ExtensionTest extends AbstractExtensionTestCase
             'use_common_traits' => true
         ));
 
-        $this->assertContainerBuilderHasParameter('roc.traitor.injection_map', array(
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.injection_map', array(
             'Symfony\Component\DependencyInjection\ContainerAwareTrait' => array('setContainer', array('@service_container')),
             'Psr\Log\LoggerAwareTrait' => array('setLogger', array('@logger')),
             'RunOpenCode\Bundle\Traitor\Traits\DoctrineAwareTrait' => array('setDoctrine', array('@doctrine')),
@@ -61,12 +60,12 @@ class ExtensionTest extends AbstractExtensionTestCase
             )
         ));
 
-        $this->assertContainerBuilderHasParameter('roc.traitor.filter.namespaces', array(
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.filter.namespaces', array(
             'RunOpenCode\\Bundle\\TestNamespace1\\',
             'RunOpenCode\\Bundle\\TestNamespace2\\'
         ));
 
-        $this->assertContainerBuilderHasParameter('roc.traitor.filter.tags', array(
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.filter.tags', array(
             'form.type'
         ));
     }

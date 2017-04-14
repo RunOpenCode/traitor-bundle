@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsd:schema xmlns="http://www.runopencode.com/xsd-schema/traitor-bundle"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.runopencode.com/xsd-schema/traitor-bundle"
+            elementFormDefault="qualified">
+
+    <xsd:element name="config" type="config" />
+
+    <xsd:complexType name="config">
+
+
+
+    </xsd:complexType>
+
+
+    <xsd:simpleType name="requiredTextContent">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value=".+"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>

@@ -2,7 +2,7 @@
 /*
  * This file is part of the  TraitorBundle, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,7 +21,7 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
 
-        $rootNode = $treeBuilder->root('run_open_code_traitor');
+        $rootNode = $treeBuilder->root('runopencode_traitor');
 
         $rootNode
             ->addDefaultsIfNotSet()

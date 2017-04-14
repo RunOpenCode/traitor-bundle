@@ -2,7 +2,7 @@
 /*
  * This file is part of the  TraitorBundle, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,15 +22,15 @@ class CompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasParameter('roc.traitor.injection_map') || count($container->getParameter('roc.traitor.injection_map')) === 0) {
+        if (!$container->hasParameter('runopencode.traitor.injection_map') || count($container->getParameter('runopencode.traitor.injection_map')) === 0) {
             return;
         }
 
-        if ($container->hasParameter('roc.traitor.filter.tags') || $container->hasParameter('roc.traitor.filter.namespaces')) {
+        if ($container->hasParameter('runopencode.traitor.filter.tags') || $container->hasParameter('runopencode.traitor.filter.namespaces')) {
 
             $definitions = array_merge(
-                $container->hasParameter('roc.traitor.filter.tags') ? $this->getDefinitionsFromTags($container, $container->getParameter('roc.traitor.filter.tags')) : array(),
-                $container->hasParameter('roc.traitor.filter.namespaces') ? $this->getDefinitionsFromClassNamespaces($container, $container->getParameter('roc.traitor.filter.namespaces')) : array()
+                $container->hasParameter('runopencode.traitor.filter.tags') ? $this->getDefinitionsFromTags($container, $container->getParameter('runopencode.traitor.filter.tags')) : array(),
+                $container->hasParameter('runopencode.traitor.filter.namespaces') ? $this->getDefinitionsFromClassNamespaces($container, $container->getParameter('runopencode.traitor.filter.namespaces')) : array()
             );
 
         } else {
@@ -40,7 +40,7 @@ class CompilerPass implements CompilerPassInterface
 
         $definitions = $this->filterExcludedDefinitions($container, $definitions);
 
-        $this->processInjection($definitions, $container->getParameter('roc.traitor.injection_map'));
+        $this->processInjection($definitions, $container->getParameter('runopencode.traitor.injection_map'));
     }
 
     /**
@@ -157,9 +157,9 @@ class CompilerPass implements CompilerPassInterface
      */
     protected function filterExcludedDefinitions(ContainerBuilder $container, array $definitions)
     {
-        $excludedServices = $container->hasParameter('roc.traitor.exclude.services') ? $container->getParameter('roc.traitor.exclude.services') : array();
-        $excludedClasses = $container->hasParameter('roc.traitor.exclude.classes') ? $container->getParameter('roc.traitor.exclude.classes') : array();
-        $excludedNamespaces = $container->hasParameter('roc.traitor.exclude.namespaces') ? $container->getParameter('roc.traitor.exclude.namespaces') : array();
+        $excludedServices = $container->hasParameter('runopencode.traitor.exclude.services') ? $container->getParameter('runopencode.traitor.exclude.services') : array();
+        $excludedClasses = $container->hasParameter('runopencode.traitor.exclude.classes') ? $container->getParameter('runopencode.traitor.exclude.classes') : array();
+        $excludedNamespaces = $container->hasParameter('runopencode.traitor.exclude.namespaces') ? $container->getParameter('runopencode.traitor.exclude.namespaces') : array();
 
 
         $result = array();
