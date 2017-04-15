@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @codeCoverageIgnore
  */
-class FilesystemAwareTrait
+trait FilesystemAwareTrait
 {
     /**
      * @var Filesystem
