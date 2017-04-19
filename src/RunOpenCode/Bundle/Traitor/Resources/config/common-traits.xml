@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+
+<container
+        xmlns="http://symfony.com/schema/dic/services"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:runopencode-traitor-bundle="http://www.runopencode.com/xsd-schema/traitor-bundle"
+        xsi:schemaLocation="http://symfony.com/schema/dic/services
+                            http://symfony.com/schema/dic/services/services-1.0.xsd
+                            http://www.runopencode.com/xsd-schema/traitor-bundle
+                            http://www.runopencode.com/xsd-schema/traitor-bundle/configuration-1.0.0.xsd
+                            "
+>
+
+    <runopencode-traitor-bundle:config>
+
+        <runopencode-traitor-bundle:inject trait="Symfony\Component\DependencyInjection\ContainerAwareTrait">
+            <runopencode-traitor-bundle:call method="setContainer">
+                <runopencode-traitor-bundle:argument type="service" id="service_container" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="Psr\Log\LoggerAwareTrait">
+            <runopencode-traitor-bundle:call method="setLogger">
+                <runopencode-traitor-bundle:argument type="service" id="logger" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\DoctrineAwareTrait">
+            <runopencode-traitor-bundle:call method="setDoctrine">
+                <runopencode-traitor-bundle:argument type="service" id="doctrine" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\EventDispatcherAwareTrait">
+            <runopencode-traitor-bundle:call method="setEventDispatcher">
+                <runopencode-traitor-bundle:argument type="service" id="event_dispatcher" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\FilesystemAwareTrait">
+            <runopencode-traitor-bundle:call method="setFilesystem">
+                <runopencode-traitor-bundle:argument type="service" id="filesystem" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\KernelAwareTrait">
+            <runopencode-traitor-bundle:call method="setKernel">
+                <runopencode-traitor-bundle:argument type="service" id="kernel" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\MailerAwareInterface">
+            <runopencode-traitor-bundle:call method="setMailer">
+                <runopencode-traitor-bundle:argument type="service" id="mailer" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\PropertyAccessorAwareTrait">
+            <runopencode-traitor-bundle:call method="setPropertyAccessor">
+                <runopencode-traitor-bundle:argument type="service" id="property_accessor" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\RequestStackAwareTrait">
+            <runopencode-traitor-bundle:call method="setRequestStack">
+                <runopencode-traitor-bundle:argument type="service" id="request_stack" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\RouterAwareTrait">
+            <runopencode-traitor-bundle:call method="setRouter">
+                <runopencode-traitor-bundle:argument type="service" id="router" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\AuthorizationCheckerAwareTrait">
+            <runopencode-traitor-bundle:call method="setAuthorizationChecker">
+                <runopencode-traitor-bundle:argument type="service" id="security.authorization_checker" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\SessionAwareTrait">
+            <runopencode-traitor-bundle:call method="setSession">
+                <runopencode-traitor-bundle:argument type="service" id="session" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\TwigAwareTrait">
+            <runopencode-traitor-bundle:call method="setTwig">
+                <runopencode-traitor-bundle:argument type="service" id="setTwig" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\TranslatorAwareTrait">
+            <runopencode-traitor-bundle:call method="setTranslator">
+                <runopencode-traitor-bundle:argument type="service" id="translator" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait">
+            <runopencode-traitor-bundle:call method="setValidator">
+                <runopencode-traitor-bundle:argument type="service" id="validator" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:inject trait="RunOpenCode\Bundle\Traitor\Traits\TokenStorageAwareTrait">
+            <runopencode-traitor-bundle:call method="setTokenStorage">
+                <runopencode-traitor-bundle:argument type="service" id="security.token_storage" />
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+    </runopencode-traitor-bundle:config>
+
+</container>

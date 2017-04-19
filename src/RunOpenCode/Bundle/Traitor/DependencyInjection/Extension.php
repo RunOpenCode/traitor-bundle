@@ -9,8 +9,10 @@
  */
 namespace RunOpenCode\Bundle\Traitor\DependencyInjection;
 
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension as BaseExtension;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class Extension extends BaseExtension
 {
@@ -44,13 +46,29 @@ class Extension extends BaseExtension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
+
         $config = $this->processConfiguration($configuration, $configs);
 
+        if ($config['use_common_traits']) {
+
+            $loader = new XmlFileLoader(
+                $container,
+                new FileLocator(__DIR__.'/../Resources/config')
+            );
+
+            $loader->load('common-traits.xml');
+
+            array_map(function($config) use (&$configs) {
+                $configs[] = $config;
+            }, $container->getExtensionConfig($this->getAlias()));
+
+            $config = $this->processConfiguration($configuration, $configs);
+        }
+
         $this
-            ->setInjectionMapAsContainerParameter($config, $container)
-            ->setFiltersAsContainerParameter($config, $container)
-            ->setExclusionsAsContainerParameter($config, $container)
-            ;
+            ->processInjections($config, $container)
+            ->processFilters($config, $container)
+            ->processExclusions($config, $container);
     }
 
     /**
@@ -58,37 +76,17 @@ class Extension extends BaseExtension
      * @param ContainerBuilder $container
      * @return Extension $this
      */
-    protected function setInjectionMapAsContainerParameter(array $config, ContainerBuilder $container)
+    protected function processInjections(array $config, ContainerBuilder $container)
     {
-        $injection = array();
+        $injection = [];
 
-        foreach ($config['inject'] as $trait => $injection) {
+        foreach ($config['injects'] as $trait => $injection) {
             $injection[ltrim($trait, '\\')] = $injection;
         }
 
-        if ($config['use_common_traits']) {
-
-            $injection = array_merge($injection, array(
-                'Symfony\Component\DependencyInjection\ContainerAwareTrait' => array('setContainer', array('@service_container')),
-                'Psr\Log\LoggerAwareTrait' => array('setLogger', array('@logger')),
-                'RunOpenCode\Bundle\Traitor\Traits\DoctrineAwareTrait' => array('setDoctrine', array('@doctrine')),
-                'RunOpenCode\Bundle\Traitor\Traits\EventDispatcherAwareTrait' => array('setEventDispatcher', array('@event_dispatcher')),
-                'RunOpenCode\Bundle\Traitor\Traits\FilesystemAwareTrait' => array('setFilesystem', array('@filesystem')),
-                'RunOpenCode\Bundle\Traitor\Traits\KernelAwareTrait' => array('setKernel', array('@kernel')),
-                'RunOpenCode\Bundle\Traitor\Traits\MailerAwareInterface' => array('setMailer', array('@mailer')),
-                'RunOpenCode\Bundle\Traitor\Traits\PropertyAccessorAwareTrait' => array('setPropertyAccessor', array('@property_accessor')),
-                'RunOpenCode\Bundle\Traitor\Traits\RequestStackAwareTrait' => array('setRequestStack', array('@request_stack')),
-                'RunOpenCode\Bundle\Traitor\Traits\RouterAwareTrait' => array('setRouter', array('@router')),
-                'RunOpenCode\Bundle\Traitor\Traits\AuthorizationCheckerAwareTrait' => array('setAuthorizationChecker', array('@security.authorization_checker')),
-                'RunOpenCode\Bundle\Traitor\Traits\SessionAwareTrait' => array('setSession', array('@session')),
-                'RunOpenCode\Bundle\Traitor\Traits\TwigAwareTrait' => array('setTwig', array('@twig')),
-                'RunOpenCode\Bundle\Traitor\Traits\TranslatorAwareTrait' => array('setTranslator', array('@translator')),
-                'RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait' => array('setValidator', array('@validator')),
-                'RunOpenCode\Bundle\Traitor\Traits\TokenStorageAwareTrait' => array('setTokenStorage', array('@security.token_storage'))
-            ));
+        if (count($injection) > 0) {
+            $container->setParameter('runopencode.traitor.injectables', $injection);
         }
-
-        $container->setParameter('runopencode.traitor.injection_map', $injection);
 
         return $this;
     }
@@ -98,7 +96,7 @@ class Extension extends BaseExtension
      * @param ContainerBuilder $container
      * @return Extension $this
      */
-    protected function setFiltersAsContainerParameter(array $config, ContainerBuilder $container)
+    protected function processFilters(array $config, ContainerBuilder $container)
     {
         if (isset($config['filters'])) {
 
@@ -122,7 +120,7 @@ class Extension extends BaseExtension
      * @param ContainerBuilder $container
      * @return Extension $this
      */
-    protected function setExclusionsAsContainerParameter(array $config, ContainerBuilder $container)
+    protected function processExclusions(array $config, ContainerBuilder $container)
     {
         if (isset($config['exclude'])) {
 
@@ -143,6 +141,11 @@ class Extension extends BaseExtension
                     return ltrim($fqcn, '\\');
                 }, $config['exclude']['classes']));
             }
+
+            if (count($config['exclude']['tags']) > 0) {
+                $container->setParameter('runopencode.traitor.exclude.tags', $config['exclude']['tags']);
+            }
+
         }
 
         return $this;

@@ -17,57 +17,99 @@ class ExtensionTest extends AbstractExtensionTestCase
     /**
      * @test
      */
-    public function loadCommonTraitsInInjectionMap()
+    public function thereAreNoInjectables()
     {
-        $this->load(array(
-            'use_common_traits' => true
-        ));
+        $this->load([
+            'use_common_traits' => false,
+        ]);
 
-        $this->assertContainerBuilderHasParameter('runopencode.traitor.injection_map', array(
-            'Symfony\Component\DependencyInjection\ContainerAwareTrait' => array('setContainer', array('@service_container')),
-            'Psr\Log\LoggerAwareTrait' => array('setLogger', array('@logger')),
-            'RunOpenCode\Bundle\Traitor\Traits\DoctrineAwareTrait' => array('setDoctrine', array('@doctrine')),
-            'RunOpenCode\Bundle\Traitor\Traits\EventDispatcherAwareTrait' => array('setEventDispatcher', array('@event_dispatcher')),
-            'RunOpenCode\Bundle\Traitor\Traits\FilesystemAwareTrait' => array('setFilesystem', array('@filesystem')),
-            'RunOpenCode\Bundle\Traitor\Traits\KernelAwareTrait' => array('setKernel', array('@kernel')),
-            'RunOpenCode\Bundle\Traitor\Traits\MailerAwareInterface' => array('setMailer', array('@mailer')),
-            'RunOpenCode\Bundle\Traitor\Traits\PropertyAccessorAwareTrait' => array('setPropertyAccessor', array('@property_accessor')),
-            'RunOpenCode\Bundle\Traitor\Traits\RequestStackAwareTrait' => array('setRequestStack', array('@request_stack')),
-            'RunOpenCode\Bundle\Traitor\Traits\RouterAwareTrait' => array('setRouter', array('@router')),
-            'RunOpenCode\Bundle\Traitor\Traits\AuthorizationCheckerAwareTrait' => array('setAuthorizationChecker', array('@security.authorization_checker')),
-            'RunOpenCode\Bundle\Traitor\Traits\SessionAwareTrait' => array('setSession', array('@session')),
-            'RunOpenCode\Bundle\Traitor\Traits\TwigAwareTrait' => array('setTwig', array('@twig')),
-            'RunOpenCode\Bundle\Traitor\Traits\TranslatorAwareTrait' => array('setTranslator', array('@translator')),
-            'RunOpenCode\Bundle\Traitor\Traits\ValidatorAwareTrait' => array('setValidator', array('@validator')),
-            'RunOpenCode\Bundle\Traitor\Traits\TokenStorageAwareTrait' => array('setTokenStorage', array('@security.token_storage'))
-        ));
+        $this->assertFalse($this->container->hasParameter('runopencode.traitor.injectables'));
     }
 
     /**
      * @test
      */
-    public function setFilters()
+    public function thereAreInjectablesWithinCommonTraits()
     {
-        $this->load(array(
-            'filters' => array(
-                'namespaces' => array(
+        $this->load([
+            'use_common_traits' => true,
+        ]);
+
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.injectables');
+    }
+
+    /**
+     * @test
+     */
+    public function thereAreFilters()
+    {
+        $this->load([
+            'filters' => [
+                'namespaces' => [
                     '\\RunOpenCode\\Bundle\\TestNamespace1\\',
-                    '\\RunOpenCode\\Bundle\\TestNamespace2'
-                ),
-                'tags' => array(
-                    'form.type'
-                )
-            )
-        ));
+                    'RunOpenCode\\Bundle\\TestNamespace2',
+                ],
+                'tags' => [
+                    'form.type',
+                ]
+            ]
+        ]);
 
-        $this->assertContainerBuilderHasParameter('runopencode.traitor.filter.namespaces', array(
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.filter.namespaces', [
             'RunOpenCode\\Bundle\\TestNamespace1\\',
-            'RunOpenCode\\Bundle\\TestNamespace2\\'
-        ));
+            'RunOpenCode\\Bundle\\TestNamespace2\\',
+        ]);
 
-        $this->assertContainerBuilderHasParameter('runopencode.traitor.filter.tags', array(
-            'form.type'
-        ));
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.filter.tags', [
+            'form.type',
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function thereAreExclusions()
+    {
+        $this->load([
+            'exclude' => [
+                'services' => [
+                    'service_1',
+                    'service_2',
+                ],
+                'tags' => [
+                    'tag.tag_1',
+                    'tag.tag_2',
+                ],
+                'namespaces' => [
+                    '\\RunOpenCode\\Bundle\\TestNamespace1\\',
+                    'RunOpenCode\\Bundle\\TestNamespace2',
+                ],
+                'classes' => [
+                    '\\RunOpenCode\\Bundle\\TestNamespace1\\ClassX',
+                    'RunOpenCode\\Bundle\\TestNamespace2\\ClassY',
+                ]
+            ]
+        ]);
+
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.exclude.services', [
+            'service_1',
+            'service_2',
+        ]);
+
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.exclude.tags', [
+            'tag.tag_1',
+            'tag.tag_2',
+        ]);
+
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.exclude.namespaces', [
+            'RunOpenCode\\Bundle\\TestNamespace1\\',
+            'RunOpenCode\\Bundle\\TestNamespace2\\',
+        ]);
+
+        $this->assertContainerBuilderHasParameter('runopencode.traitor.exclude.classes', [
+            'RunOpenCode\\Bundle\\TestNamespace1\\ClassX',
+            'RunOpenCode\\Bundle\\TestNamespace2\\ClassY',
+        ]);
     }
 
     /**

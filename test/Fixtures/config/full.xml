@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container
+        xmlns="http://symfony.com/schema/dic/services"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:runopencode-traitor-bundle="http://www.runopencode.com/xsd-schema/traitor-bundle"
+        xsi:schemaLocation="http://symfony.com/schema/dic/services
+                            http://symfony.com/schema/dic/services/services-1.0.xsd
+                            http://www.runopencode.com/xsd-schema/traitor-bundle
+                            http://www.runopencode.com/xsd-schema/traitor-bundle/configuration-1.0.0.xsd
+                            "
+>
+
+    <runopencode-traitor-bundle:config>
+
+        <runopencode-traitor-bundle:use-common-traits>true</runopencode-traitor-bundle:use-common-traits>
+
+        <runopencode-traitor-bundle:inject trait="Some\Service\TraitAware">
+            <runopencode-traitor-bundle:call method="someMethod">
+                <runopencode-traitor-bundle:argument type="service" id="some_service"/>
+            </runopencode-traitor-bundle:call>
+        </runopencode-traitor-bundle:inject>
+
+        <runopencode-traitor-bundle:filter>
+            <runopencode-traitor-bundle:tag>some.tag</runopencode-traitor-bundle:tag>
+            <runopencode-traitor-bundle:namespace>Some\Namespace</runopencode-traitor-bundle:namespace>
+        </runopencode-traitor-bundle:filter>
+
+    </runopencode-traitor-bundle:config>
+
+</container>

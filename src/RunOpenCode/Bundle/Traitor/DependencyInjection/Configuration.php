@@ -25,34 +25,34 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->addDefaultsIfNotSet()
+            ->fixXmlConfig('inject')
             ->children()
                 ->booleanNode('use_common_traits')
                     ->defaultFalse()
                     ->info('For sake of productivity, some of the common Symfony and vendor traits, as well as traits from this library, can be automatically added to "inject" definition.')
                 ->end()
-                ->arrayNode('inject')
+                ->arrayNode('injects')
                     ->useAttributeAsKey('trait')
                     ->prototype('array')
-                        ->validate()
-                            ->ifTrue(function($value) {
-
-                                if (!is_array($value) || 2 !== count($value)) {
-                                    return true;
-                                }
-
-                                if (!is_string($value[0])) {
-                                    return true;
-                                }
-
-                                if (!is_array($value[1])) {
-                                    return true;
-                                }
-
-                                return false;
-                            })
-                            ->thenInvalid('Expected proper setter injection definition.')
-                        ->end()
-                        ->prototype('variable')
+                        ->fixXmlConfig('call', 'call')
+                        ->children()
+                            ->arrayNode('call')
+                                ->prototype('array')
+                                    ->fixXmlConfig('argument')
+                                    ->children()
+                                        ->scalarNode('method')->isRequired()->end()
+                                        ->arrayNode('arguments')
+                                            ->prototype('array')
+                                                ->children()
+                                                    ->scalarNode('id')->defaultNull()->end()
+                                                    ->scalarNode('type')->defaultValue('string')->end()
+                                                    ->variableNode('value')->defaultNull()->end()
+                                                ->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()
@@ -81,6 +81,10 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->arrayNode('classes')
+                            ->prototype('scalar')
+                            ->end()
+                        ->end()
+                        ->arrayNode('tags')
                             ->prototype('scalar')
                             ->end()
                         ->end()
