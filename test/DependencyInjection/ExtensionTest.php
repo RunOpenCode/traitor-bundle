@@ -36,6 +36,8 @@ class ExtensionTest extends AbstractExtensionTestCase
         ]);
 
         $this->assertContainerBuilderHasParameter('runopencode.traitor.injectables');
+
+        // TODO Add assert for common traits.
     }
 
     /**
@@ -44,7 +46,7 @@ class ExtensionTest extends AbstractExtensionTestCase
     public function thereAreFilters()
     {
         $this->load([
-            'filters' => [
+            'filter' => [
                 'namespaces' => [
                     '\\RunOpenCode\\Bundle\\TestNamespace1\\',
                     'RunOpenCode\\Bundle\\TestNamespace2',

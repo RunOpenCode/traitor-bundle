@@ -80,8 +80,8 @@ class Extension extends BaseExtension
     {
         $injection = [];
 
-        foreach ($config['injects'] as $trait => $injection) {
-            $injection[ltrim($trait, '\\')] = $injection;
+        foreach ($config['injects'] as $trait => $defintion) {
+            $injection[ltrim($trait, '\\')] = $defintion;
         }
 
         if (count($injection) > 0) {
@@ -98,17 +98,17 @@ class Extension extends BaseExtension
      */
     protected function processFilters(array $config, ContainerBuilder $container)
     {
-        if (isset($config['filters'])) {
+        if (isset($config['filter'])) {
 
-            if (count($config['filters']['tags']) > 0) {
-                $container->setParameter('runopencode.traitor.filter.tags', $config['filters']['tags']);
+            if (count($config['filter']['tags']) > 0) {
+                $container->setParameter('runopencode.traitor.filter.tags', $config['filter']['tags']);
             }
 
-            if (count($config['filters']['namespaces']) > 0) {
+            if (count($config['filter']['namespaces']) > 0) {
 
                 $container->setParameter('runopencode.traitor.filter.namespaces', array_map(function($namespace) {
                     return rtrim(ltrim($namespace, '\\'), '\\') . '\\';
-                }, $config['filters']['namespaces']));
+                }, $config['filter']['namespaces']));
             }
         }
 
