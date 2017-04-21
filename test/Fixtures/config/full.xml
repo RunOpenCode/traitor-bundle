@@ -17,11 +17,11 @@
 
         <runopencode-traitor-bundle:inject trait="Some\Service\TraitAware">
             <runopencode-traitor-bundle:call method="someMethod">
-                <runopencode-traitor-bundle:argument type="service" id="some_service"/>
+                <runopencode-traitor-bundle:argument type="service" id="some_service" />
             </runopencode-traitor-bundle:call>
             <runopencode-traitor-bundle:call method="someOtherMethod">
-                <runopencode-traitor-bundle:argument>%some.container.parameter%</runopencode-traitor-bundle:argument>
                 <runopencode-traitor-bundle:argument type="string">Test</runopencode-traitor-bundle:argument>
+                <runopencode-traitor-bundle:argument>%some.container.parameter%</runopencode-traitor-bundle:argument>
             </runopencode-traitor-bundle:call>
         </runopencode-traitor-bundle:inject>
         

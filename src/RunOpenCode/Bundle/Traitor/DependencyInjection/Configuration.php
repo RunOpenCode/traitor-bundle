@@ -52,15 +52,23 @@ class Configuration implements ConfigurationInterface
         $node
             ->useAttributeAsKey('trait')
             ->prototype('array')
-                ->fixXmlConfig('call', 'call')
+                ->fixXmlConfig('call')
                 ->children()
-                    ->arrayNode('call')
+                    ->arrayNode('calls')
                         ->prototype('array')
                         ->fixXmlConfig('argument')
                             ->children()
                                 ->scalarNode('method')->isRequired()->end()
                                 ->arrayNode('arguments')
                                     ->prototype('array')
+                                        ->beforeNormalization()
+                                        ->ifString()
+                                        ->then(function ($value) {
+                                            return [
+                                                'value' => $value
+                                            ];
+                                        })
+                                        ->end()
                                         ->children()
                                             ->scalarNode('id')->defaultNull()->end()
                                             ->scalarNode('type')->defaultValue('string')->end()

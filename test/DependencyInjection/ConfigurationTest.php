@@ -50,10 +50,47 @@ class ConfigurationTest extends AbstractExtensionConfigurationTestCase
             'use_common_traits' => true,
             'injects' => [
                 'Some\Service\TraitAware' => [
-                    'call' => []
+                    'calls' => [
+                        [
+                            'method' => 'someMethod',
+                            'arguments' => [
+                                [
+                                    'type' => 'service',
+                                    'id' => 'some_service',
+                                    'value' => null
+                                ],
+                            ],
+                        ],
+                        [
+                            'method' => 'someOtherMethod',
+                            'arguments' => [
+                                [
+                                    'type' => 'string',
+                                    'value' => 'Test',
+                                    'id' => null
+                                ],
+                                [
+                                    'type' => 'string',
+                                    'value' => '%some.container.parameter%',
+                                    'id' => null
+                                ],
+                            ],
+                        ]
+                    ]
                 ],
                 'Some\Other\TraitAware' => [
-                    'call' => []
+                    'calls' => [
+                        [
+                            'method' => 'someMethod',
+                            'arguments' => [
+                                [
+                                    'type' => 'string',
+                                    'value' => 'some argument',
+                                    'id' => null
+                                ],
+                            ]
+                        ]
+                    ]
                 ],
             ],
             'filter' => [
