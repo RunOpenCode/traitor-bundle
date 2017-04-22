@@ -73,6 +73,7 @@ class Configuration implements ConfigurationInterface
                                             ->scalarNode('id')->defaultNull()->end()
                                             ->scalarNode('type')->defaultValue('string')->end()
                                             ->variableNode('value')->defaultNull()->end()
+                                            ->enumNode('on_invalid')->values([ 'ignore', null, 'exception' ])->defaultValue('exception')->end()
                                         ->end()
                                     ->end()
                                 ->end()

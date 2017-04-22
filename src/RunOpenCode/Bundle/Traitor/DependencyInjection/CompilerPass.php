@@ -22,11 +22,15 @@ class CompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasParameter('runopencode.traitor.injection_map') || count($container->getParameter('runopencode.traitor.injection_map')) === 0) {
+        if (!$container->hasParameter('runopencode.traitor.injectables')) {
             return;
         }
 
-        if ($container->hasParameter('runopencode.traitor.filter.tags') || $container->hasParameter('runopencode.traitor.filter.namespaces')) {
+        if (
+            $container->hasParameter('runopencode.traitor.filter.tags')
+            ||
+            $container->hasParameter('runopencode.traitor.filter.namespaces')
+        ) {
 
             $definitions = array_merge(
                 $container->hasParameter('runopencode.traitor.filter.tags') ? $this->getDefinitionsFromTags($container, $container->getParameter('runopencode.traitor.filter.tags')) : array(),
@@ -93,14 +97,11 @@ class CompilerPass implements CompilerPassInterface
      */
     protected function getDefinitionsFromTags(ContainerBuilder $container, array $tags)
     {
-        $result = array();
+        $result = [];
 
         if (count($tags) > 0) {
-
             foreach ($tags as $tag) {
-
                 foreach (array_keys($container->findTaggedServiceIds($tag)) as $id) {
-
                     $result[$id] = $container->getDefinition($id);
                 }
             }

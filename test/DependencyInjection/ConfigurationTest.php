@@ -57,7 +57,8 @@ class ConfigurationTest extends AbstractExtensionConfigurationTestCase
                                 [
                                     'type' => 'service',
                                     'id' => 'some_service',
-                                    'value' => null
+                                    'value' => null,
+                                    'on_invalid' => 'exception',
                                 ],
                             ],
                         ],
@@ -67,12 +68,14 @@ class ConfigurationTest extends AbstractExtensionConfigurationTestCase
                                 [
                                     'type' => 'string',
                                     'value' => 'Test',
-                                    'id' => null
+                                    'id' => null,
+                                    'on_invalid' => 'exception',
                                 ],
                                 [
                                     'type' => 'string',
                                     'value' => '%some.container.parameter%',
-                                    'id' => null
+                                    'id' => null,
+                                    'on_invalid' => 'ignore',
                                 ],
                             ],
                         ]
@@ -86,7 +89,8 @@ class ConfigurationTest extends AbstractExtensionConfigurationTestCase
                                 [
                                     'type' => 'string',
                                     'value' => 'some argument',
-                                    'id' => null
+                                    'id' => null,
+                                    'on_invalid' => null,
                                 ],
                             ]
                         ]

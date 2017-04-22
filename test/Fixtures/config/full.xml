@@ -21,13 +21,13 @@
             </runopencode-traitor-bundle:call>
             <runopencode-traitor-bundle:call method="someOtherMethod">
                 <runopencode-traitor-bundle:argument type="string">Test</runopencode-traitor-bundle:argument>
-                <runopencode-traitor-bundle:argument>%some.container.parameter%</runopencode-traitor-bundle:argument>
+                <runopencode-traitor-bundle:argument on-invalid="ignore">%some.container.parameter%</runopencode-traitor-bundle:argument>
             </runopencode-traitor-bundle:call>
         </runopencode-traitor-bundle:inject>
         
         <runopencode-traitor-bundle:inject trait="Some\Other\TraitAware">
             <runopencode-traitor-bundle:call method="someMethod">
-                <runopencode-traitor-bundle:argument>some argument</runopencode-traitor-bundle:argument>
+                <runopencode-traitor-bundle:argument on-invalid="null">some argument</runopencode-traitor-bundle:argument>
             </runopencode-traitor-bundle:call>
         </runopencode-traitor-bundle:inject>
 

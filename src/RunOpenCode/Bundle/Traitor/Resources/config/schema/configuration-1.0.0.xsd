@@ -56,22 +56,15 @@
     <xsd:complexType name="argument" mixed="true">
         <xsd:attribute name="type" type="argument_type" />
         <xsd:attribute name="id" type="xsd:string" />
-        <xsd:attribute name="key" type="xsd:string" />
-        <xsd:attribute name="index" type="xsd:integer" />
         <xsd:attribute name="on-invalid" type="invalid_sequence" />
-        <xsd:attribute name="strict" type="boolean" />
-        <xsd:attribute name="method" type="xsd:string" />
     </xsd:complexType>
 
     <xsd:simpleType name="argument_type">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="collection" />
             <xsd:enumeration value="service" />
             <xsd:enumeration value="expression" />
             <xsd:enumeration value="string" />
             <xsd:enumeration value="constant" />
-            <xsd:enumeration value="iterator" />
-            <xsd:enumeration value="closure-proxy" />
         </xsd:restriction>
     </xsd:simpleType>
 
