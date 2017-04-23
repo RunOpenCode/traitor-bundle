@@ -14,9 +14,30 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\ExpressionLanguage\Expression;
 
+/**
+ * Class CompilerPass
+ *
+ * @package RunOpenCode\Bundle\Traitor\DependencyInjection
+ */
 class CompilerPass implements CompilerPassInterface
 {
+    /**
+     * @var array
+     */
+    private $injectables;
+
+    /**
+     * @var array
+     */
+    private $filter;
+
+    /**
+     * @var array
+     */
+    private $exclude;
+
     /**
      * {@inheritdoc}
      */
@@ -26,167 +47,216 @@ class CompilerPass implements CompilerPassInterface
             return;
         }
 
-        if (
-            $container->hasParameter('runopencode.traitor.filter.tags')
-            ||
-            $container->hasParameter('runopencode.traitor.filter.namespaces')
-        ) {
+        $this->injectables = $container->getParameter('runopencode.traitor.injectables');
+        $this->filter = [
+            'tags' => ($container->hasParameter('runopencode.traitor.filter.tags')) ? array_combine($tags = $container->getParameter('runopencode.traitor.filter.tags'), $tags) : [],
+            'namespaces' => ($container->hasParameter('runopencode.traitor.filter.namespaces')) ? $container->getParameter('runopencode.traitor.filter.namespaces') : [],
+        ];
+        $this->exclude = [
+            'tags' => ($container->hasParameter('runopencode.traitor.exclude.tags')) ? array_combine($tags = $container->getParameter('runopencode.traitor.exclude.tags'), $tags) : [],
+            'namespaces' => ($container->hasParameter('runopencode.traitor.exclude.namespaces')) ? $container->getParameter('runopencode.traitor.exclude.namespaces') : [],
+            'classes' => ($container->hasParameter('runopencode.traitor.exclude.classes')) ? array_combine($classes = $container->getParameter('runopencode.traitor.exclude.classes'), $classes) : [],
+            'services' => ($container->hasParameter('runopencode.traitor.exclude.services')) ? array_combine($services = $container->getParameter('runopencode.traitor.exclude.services'), $services) : [],
+        ];
 
-            $definitions = array_merge(
-                $container->hasParameter('runopencode.traitor.filter.tags') ? $this->getDefinitionsFromTags($container, $container->getParameter('runopencode.traitor.filter.tags')) : array(),
-                $container->hasParameter('runopencode.traitor.filter.namespaces') ? $this->getDefinitionsFromClassNamespaces($container, $container->getParameter('runopencode.traitor.filter.namespaces')) : array()
-            );
-
-        } else {
-
-            $definitions = $this->getDefinitionsFromClassNamespaces($container, array());
+        if (0 === count($this->filter['tags']) + count($this->filter['namespaces'])) {
+            $this->filter = null;
         }
 
-        $definitions = $this->filterExcludedDefinitions($container, $definitions);
+        if (0 === count($this->exclude['tags']) + count($this->exclude['namespaces']) + count($this->exclude['classes']) + count($this->exclude['services'])) {
+            $this->exclude = null;
+        }
 
-        $this->processInjection($definitions, $container->getParameter('runopencode.traitor.injection_map'));
+        $injectableServices = $this->findInjectableServices($container);
+
+        foreach ($injectableServices as $definition) {
+            $this->processInjections($definition);
+        }
     }
 
     /**
-     * Get definitions from container based on namespace filter
+     * Find all services which should be injected with services via traits.
      *
      * @param ContainerBuilder $container
-     * @param array $filters Namespace prefixes
-     * @return Definition[] Definitions indexed by service ID
+     * @return array
      */
-    protected function getDefinitionsFromClassNamespaces(ContainerBuilder $container, array $filters)
+    private function findInjectableServices(ContainerBuilder $container)
     {
-        $result = array();
+        $services = [];
 
-        /**
-         * @var Definition $definition
-         */
-        foreach ($container->getDefinitions() as $id => $definition) {
+        foreach ($container->getDefinitions() as $serviceId => $definition) {
 
-            $class = $definition->getClass();
-
-            if (count($filters) > 0) {
-
-                $found = false;
-
-                foreach ($filters as $namespace) {
-
-                    if (ClassUtils::isWithinNamespace($class, $namespace)) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if (!$found) {
-                    continue; // Go to next definition
-                }
-            }
-
-            $result[$id] = $definition;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get definitions from container based on service tag filter
-     *
-     * @param ContainerBuilder $container
-     * @param array $tags Tag names
-     * @return Definition[] Definitions indexed by service ID
-     */
-    protected function getDefinitionsFromTags(ContainerBuilder $container, array $tags)
-    {
-        $result = [];
-
-        if (count($tags) > 0) {
-            foreach ($tags as $tag) {
-                foreach (array_keys($container->findTaggedServiceIds($tag)) as $id) {
-                    $result[$id] = $container->getDefinition($id);
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Process injection of services via traits for given definitions.
-     *
-     * @param Definition[] $definitions Definitions to process.
-     * @param array $injectionMap Injection map.
-     */
-    protected function processInjection(array $definitions, array $injectionMap)
-    {
-        if (count($injectionMap) > 0 && count($definitions) > 0) {
-
-            /**
-             * @var Definition $definition
-             */
-            foreach ($definitions as $definition) {
-
-                $class = $definition->getClass();
-
-                foreach ($injectionMap as $trait => $injectionDefinition) {
-
-                    if (class_exists($class) && ClassUtils::usesTrait($class, $trait)) {
-
-                        $arguments = array();
-
-                        foreach ($injectionDefinition[1] as $argument) {
-
-                            if ('@' === $argument[0]) {
-                                $arguments[] = new Reference(ltrim($argument, '@'));
-                            } else {
-                                $arguments[] = $argument;
-                            }
-                        }
-
-                        $definition->addMethodCall($injectionDefinition['0'], $arguments);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Remove excluded definitions from definitions collection.
-     *
-     * @param ContainerBuilder $container
-     * @param Definition[] $definitions
-     * @return Definition[]
-     */
-    protected function filterExcludedDefinitions(ContainerBuilder $container, array $definitions)
-    {
-        $excludedServices = $container->hasParameter('runopencode.traitor.exclude.services') ? $container->getParameter('runopencode.traitor.exclude.services') : array();
-        $excludedClasses = $container->hasParameter('runopencode.traitor.exclude.classes') ? $container->getParameter('runopencode.traitor.exclude.classes') : array();
-        $excludedNamespaces = $container->hasParameter('runopencode.traitor.exclude.namespaces') ? $container->getParameter('runopencode.traitor.exclude.namespaces') : array();
-
-
-        $result = array();
-
-        foreach ($definitions as $serviceId => $definition) {
-
-            if (in_array($serviceId, $excludedServices, true)) {
+            if ($definition->isSynthetic() || !$definition->getClass()) {
                 continue;
             }
 
-            $serviceFqcn = ltrim($definition->getClass(), '\\');
-
-            if (in_array($serviceFqcn, $excludedClasses, true)) {
-                continue;
+            if ($this->isInjectable($serviceId, $definition) && !$this->isExcluded($serviceId, $definition)) {
+                $services[$serviceId] = $definition;
             }
-
-            foreach ($excludedNamespaces as $excludedNamespace) {
-
-                if (strpos($serviceFqcn, $excludedNamespace) === 0) {
-                    continue 2;
-                }
-            }
-
-            $result[$serviceId] = $definition;
         }
 
-        return $result;
+        return $services;
+    }
+
+    /**
+     * Check if service definition should be injected with service via traits.
+     *
+     * @param string $serviceId
+     * @param Definition $definition
+     * @return bool
+     */
+    private function isInjectable($serviceId, Definition $definition)
+    {
+        if (null === $this->filter) {
+            return true;
+        }
+
+        $class = $definition->getClass();
+
+        foreach ($this->filter['namespaces'] as $namespace) {
+
+            if (ClassUtils::isWithinNamespace($class, $namespace)) {
+                return true;
+            }
+        }
+
+        foreach ($definition->getTags() as $tag) {
+
+            if (isset($tag['name'], $this->filter['tags'][$tag['name']])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if service definition should be excluded from service injection via traits.
+     *
+     * @param string $serviceId
+     * @param Definition $definition
+     * @return bool
+     */
+    private function isExcluded($serviceId, Definition $definition)
+    {
+        if (null === $this->exclude) {
+            return false;
+        }
+
+        if (isset($this->exclude['services'][$serviceId])) {
+            return true;
+        }
+
+        $class = $definition->getClass();
+
+        if (isset($this->exclude['classes'][$class])) {
+            return true;
+        }
+
+        foreach ($this->exclude['namespaces'] as $namespace) {
+
+            if (ClassUtils::isWithinNamespace($class, $namespace)) {
+                return true;
+            }
+        }
+
+        foreach ($definition->getTags() as $tag) {
+
+            if (isset($tag['name'], $this->exclude['tags'][$tag['name']])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Process service injections via traits.
+     *
+     * @param Definition $definition
+     */
+    private function processInjections(Definition $definition)
+    {
+        $class = $definition->getClass();
+
+        foreach ($this->injectables as $trait => $calls) {
+
+            if (class_exists($class) && ClassUtils::usesTrait($class, $trait)) {
+                foreach ($calls as $call) {
+                    $definition->addMethodCall($call['method'], $this->processArguments($call['arguments']));
+                }
+            }
+        }
+    }
+
+    /**
+     * Process service injection parameters.
+     *
+     * @param array $arguments
+     * @return array
+     */
+    private function processArguments(array $arguments)
+    {
+        $processed = [];
+
+        foreach ($arguments as $argument) {
+            $processed[] = $this->{sprintf('process%sAsArgument', ucfirst($argument['type']))}($argument);
+        }
+
+        return $processed;
+    }
+
+    /**
+     * Process service as argument.
+     *
+     * @param array $argument
+     * @return Reference
+     */
+    private function processServiceAsArgument(array $argument)
+    {
+        $invalidBehaviour = ContainerBuilder::EXCEPTION_ON_INVALID_REFERENCE;
+
+        if (null === $argument['on_invalid']) {
+            $invalidBehaviour = ContainerBuilder::NULL_ON_INVALID_REFERENCE;
+        }
+
+        if ('ignore' === $argument['on_invalid']) {
+            $invalidBehaviour = ContainerBuilder::IGNORE_ON_INVALID_REFERENCE;
+        }
+
+        return new Reference($argument['id'], $invalidBehaviour);
+    }
+
+    /**
+     * Process expression as argument.
+     *
+     * @param array $argument
+     * @return Expression
+     */
+    private function processExpressionAsArgument(array $argument)
+    {
+        return new Expression($argument['value']);
+    }
+
+    /**
+     * Process string as argument
+     *
+     * @param array $argument
+     * @return string
+     */
+    private function processStringAsArgument(array $argument)
+    {
+        return (string) $argument['value'];
+    }
+
+    /**
+     * Process constant as argument.
+     *
+     * @param array $argument
+     * @return mixed
+     */
+    private function processConstantAsArgument(array $argument)
+    {
+        return constant($argument['value']);
     }
 }

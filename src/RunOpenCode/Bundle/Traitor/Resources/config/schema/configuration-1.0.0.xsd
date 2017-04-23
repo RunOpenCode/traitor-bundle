@@ -10,6 +10,7 @@
     <xsd:complexType name="config">
 
         <xsd:sequence>
+            
             <xsd:element name="use-common-traits" type="xsd:boolean" minOccurs="0" maxOccurs="1" />
 
             <xsd:element name="inject" minOccurs="0" maxOccurs="unbounded">
@@ -40,7 +41,6 @@
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
-
 
         </xsd:sequence>
 
@@ -73,12 +73,6 @@
             <xsd:enumeration value="null" />
             <xsd:enumeration value="ignore" />
             <xsd:enumeration value="exception" />
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="boolean">
-        <xsd:restriction base="xsd:string">
-            <xsd:pattern value="(%.+%|true|false)" />
         </xsd:restriction>
     </xsd:simpleType>
 

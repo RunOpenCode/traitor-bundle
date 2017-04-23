@@ -9,6 +9,11 @@
  */
 namespace RunOpenCode\Bundle\Traitor\Exception;
 
+/**
+ * Class InvalidArgumentException
+ *
+ * @package RunOpenCode\Bundle\Traitor\Exception
+ */
 class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {
 

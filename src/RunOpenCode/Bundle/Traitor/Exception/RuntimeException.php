@@ -9,6 +9,11 @@
  */
 namespace RunOpenCode\Bundle\Traitor\Exception;
 
+/**
+ * Class RuntimeException
+ *
+ * @package RunOpenCode\Bundle\Traitor\Exception
+ */
 class RuntimeException extends \RuntimeException implements ExceptionInterface
 {
 

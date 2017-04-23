@@ -9,6 +9,11 @@
  */
 namespace RunOpenCode\Bundle\Traitor\Exception;
 
+/**
+ * Interface ExceptionInterface
+ *
+ * @package RunOpenCode\Bundle\Traitor\Exception
+ */
 interface ExceptionInterface
 {
 

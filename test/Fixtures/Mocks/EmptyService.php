@@ -11,5 +11,5 @@ namespace RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks;
 
 class EmptyService
 {
-
+    const DUMMY_CONSTANT = 'dummy_constant';
 }

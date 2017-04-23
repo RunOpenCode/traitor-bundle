@@ -11,9 +11,16 @@ namespace RunOpenCode\Bundle\Traitor\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\CompilerPass;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\Deeper\ThirdService;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\EmptyService;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\FirstService;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\SecondService;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\Traits\FirstTrait;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\Traits\SecondTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\ExpressionLanguage\Expression;
 
 class CompilerPassTest extends AbstractCompilerPassTestCase
 {
@@ -21,167 +28,101 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     {
         parent::setUp();
 
-        require_once __DIR__ . '/../Fixtures/mocks.php';
+        $firstService = new Definition(FirstService::class);
+        $secondService = new Definition(SecondService::class);
+        $thirdService = new Definition(ThirdService::class);
+        $emptyService = new Definition(EmptyService::class);
+
+        $this->setDefinition('service_one', $firstService);
+        $this->setDefinition('service_two', $secondService);
+        $this->setDefinition('service_three', $thirdService);
+        $this->setDefinition('empty_service', $emptyService);
+
+        $this->setParameter('runopencode.traitor.injectables', [
+            FirstTrait::class => [
+                [
+                    'method' => 'firstTraitFirstMethod',
+                    'arguments' => [
+                        [
+                            'type' => 'service',
+                            'id' => 'empty_service',
+                            'value' => null,
+                            'on_invalid' => 'exception',
+                        ],
+                        [
+                            'type' => 'service',
+                            'id' => 'empty_service',
+                            'value' => null,
+                            'on_invalid' => null,
+                        ],
+                        [
+                            'type' => 'service',
+                            'id' => 'empty_service',
+                            'value' => null,
+                            'on_invalid' => 'ignore',
+                        ]
+                    ],
+                ],
+            ],
+            SecondTrait::class => [
+                [
+                    'method' => 'secondTraitFirstMethod',
+                    'arguments' => [
+                        [
+                            'type' => 'string',
+                            'id' => null,
+                            'value' => 'some_value',
+                            'on_invalid' => null,
+                        ],
+                    ]
+                ],
+                [
+                    'method' => 'secondTraitSecondMethod',
+                    'arguments' => [
+                        [
+                            'type' => 'expression',
+                            'id' => null,
+                            'value' => 'if (true) false;',
+                            'on_invalid' => null,
+                        ],
+                        [
+                            'type' => 'constant',
+                            'id' => null,
+                            'value' => 'RunOpenCode\\Bundle\\Traitor\\Tests\\Fixtures\\Mocks\\EmptyService::DUMMY_CONSTANT',
+                            'on_invalid' => null,
+                        ],
+                    ]
+                ],
+            ]
+        ]);
     }
 
     /**
      * @test
      */
-    public function matchNamespaceFilter()
+    public function itInjectsProperly()
     {
-        $this->registerDummyServices();
-
-        $this->setParameter('runopencode.traitor.filter.namespaces', array(
-            '\\Test\\Deeper\\NamespacePrefix\\'
-        ));
-
         $this->compile();
 
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_three',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('service_three', 'firstTraitFirstMethod', [
+            new Reference('empty_service'),
+            new Reference('empty_service', ContainerBuilder::NULL_ON_INVALID_REFERENCE),
+            new Reference('empty_service', ContainerBuilder::IGNORE_ON_INVALID_REFERENCE)
+        ]);
 
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('service_three', 'secondTraitFirstMethod', [
+            'some_value'
+        ]);
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('service_three', 'secondTraitSecondMethod', [
+            new Expression('if (true) false;'),
+            EmptyService::DUMMY_CONSTANT
+        ]);
 
-        $this->assertSame(0, count($this->container->findDefinition('service_one')->getMethodCalls()));
-        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_one')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_two')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('empty_service')->getMethodCalls()));
     }
 
-    /**
-     * @test
-     */
-    public function matchTagFilter()
-    {
-        $this->registerDummyServices();
-
-        $this->setParameter('runopencode.traitor.filter.tags', array(
-            'test.tag'
-        ));
-
-        $this->container->findDefinition('service_three')->addTag('test.tag', array());
-
-        $this->compile();
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_three',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-
-        $this->assertSame(0, count($this->container->findDefinition('service_one')->getMethodCalls()));
-        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
-    }
-
-    /**
-     * @test
-     */
-    public function matchAll()
-    {
-        $this->registerDummyServices();
-
-        $this->compile();
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_one',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_two',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_three',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function excludeService()
-    {
-        $this->registerDummyServices();
-
-        $this->setParameter('runopencode.traitor.exclude.services', array('service_two', 'service_three'));
-
-        $this->compile();
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_one',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-
-        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
-        $this->assertSame(0, count($this->container->findDefinition('service_three')->getMethodCalls()));
-    }
-
-    /**
-     * @test
-     */
-    public function excludeClass()
-    {
-        $this->registerDummyServices();
-
-        $this->setParameter('runopencode.traitor.exclude.classes', array(
-            \Test\NamespacePrefix\One\ServiceClass1::class,
-            \Test\NamespacePrefix\Two\ServiceClass2::class
-        ));
-
-        $this->compile();
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_three',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-
-        $this->assertSame(0, count($this->container->findDefinition('service_one')->getMethodCalls()));
-        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
-    }
-
-    /**
-     * @test
-     */
-    public function excludeNamespace()
-    {
-        $this->registerDummyServices();
-
-        $this->setParameter('runopencode.traitor.exclude.namespaces', array('Test\\NamespacePrefix\\'));
-
-        $this->compile();
-
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
-            'service_three',
-            'setLogger',
-            array(
-                new Reference('logger')
-            )
-        );
-
-        $this->assertSame(0, count($this->container->findDefinition('service_two')->getMethodCalls()));
-        $this->assertSame(0, count($this->container->findDefinition('service_one')->getMethodCalls()));
-    }
 
     /**
      * {@inheritdoc}
@@ -191,20 +132,4 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
         $container
             ->addCompilerPass(new CompilerPass());
     }
-
-    protected function registerDummyServices()
-    {
-        $service1 = new Definition(\Test\NamespacePrefix\One\ServiceClass1::class);
-        $service2 = new Definition(\Test\NamespacePrefix\Two\ServiceClass2::class);
-        $service3 = new Definition(\Test\Deeper\NamespacePrefix\Three\ServiceClass3::class);
-
-        $this->setDefinition('service_one', $service1);
-        $this->setDefinition('service_two', $service2);
-        $this->setDefinition('service_three', $service3);
-
-        $this->setParameter('runopencode.traitor.injection_map', array(
-            'Psr\Log\LoggerAwareTrait' => array('setLogger', array('@logger'))
-        ));
-    }
 }
-

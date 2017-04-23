@@ -14,6 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension as BaseExtension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
+/**
+ * Class Extension
+ *
+ * @package RunOpenCode\Bundle\Traitor\DependencyInjection
+ */
 class Extension extends BaseExtension
 {
     /**
@@ -81,7 +86,7 @@ class Extension extends BaseExtension
         $injection = [];
 
         foreach ($config['injects'] as $trait => $defintion) {
-            $injection[ltrim($trait, '\\')] = $defintion;
+            $injection[ltrim($trait, '\\')] = $defintion['calls'];
         }
 
         if (count($injection) > 0) {

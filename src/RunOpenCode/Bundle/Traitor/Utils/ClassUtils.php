@@ -12,6 +12,11 @@ namespace RunOpenCode\Bundle\Traitor\Utils;
 use RunOpenCode\Bundle\Traitor\Exception\InvalidArgumentException;
 use RunOpenCode\Bundle\Traitor\Exception\RuntimeException;
 
+/**
+ * Class ClassUtils
+ *
+ * @package RunOpenCode\Bundle\Traitor\Utils
+ */
 final class ClassUtils
 {
     final private function __construct() { /** noop */ }

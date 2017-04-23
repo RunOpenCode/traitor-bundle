@@ -34,6 +34,7 @@
         "symfony/framework-bundle": "~2.8|~3.0"
     },
     "require-dev": {
+        "symfony/expression-language": "~2.8|~3.0",
         "phpunit/phpunit": "~6.0",
         "symfony/phpunit-bridge": "dev-master",
         "symfony/debug": "~2.7|~3.0",
