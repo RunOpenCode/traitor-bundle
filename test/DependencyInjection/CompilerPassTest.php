@@ -11,6 +11,7 @@ namespace RunOpenCode\Bundle\Traitor\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\CompilerPass;
+use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\Deeper\EvenMore\FourthService;
 use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\Deeper\ThirdService;
 use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\EmptyService;
 use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\FirstService;
@@ -31,11 +32,14 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
         $firstService = new Definition(FirstService::class);
         $secondService = new Definition(SecondService::class);
         $thirdService = new Definition(ThirdService::class);
+        $fourthService = new Definition(FourthService::class);
         $emptyService = new Definition(EmptyService::class);
+
 
         $this->setDefinition('service_one', $firstService);
         $this->setDefinition('service_two', $secondService);
         $this->setDefinition('service_three', $thirdService);
+        $this->setDefinition('service_four', $fourthService);
         $this->setDefinition('empty_service', $emptyService);
 
         $this->setParameter('runopencode.traitor.injectables', [
@@ -100,6 +104,15 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
     /**
      * @test
      */
+    public function compilation_should_not_fail_with_empty_container()
+    {
+        $this->container->getParameterBag()->remove('runopencode.traitor.injectables');
+        parent::compilation_should_not_fail_with_empty_container();
+    }
+
+    /**
+     * @test
+     */
     public function itInjectsProperly()
     {
         $this->compile();
@@ -121,8 +134,107 @@ class CompilerPassTest extends AbstractCompilerPassTestCase
         $this->assertEquals(0, count($this->container->getDefinition('service_one')->getMethodCalls()));
         $this->assertEquals(0, count($this->container->getDefinition('service_two')->getMethodCalls()));
         $this->assertEquals(0, count($this->container->getDefinition('empty_service')->getMethodCalls()));
+
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('service_four', 'firstTraitFirstMethod', [
+            new Reference('empty_service'),
+            new Reference('empty_service', ContainerBuilder::NULL_ON_INVALID_REFERENCE),
+            new Reference('empty_service', ContainerBuilder::IGNORE_ON_INVALID_REFERENCE)
+        ]);
     }
 
+    /**
+     * @test
+     */
+    public function itFiltersByTag()
+    {
+        $this->setParameter('runopencode.traitor.filter.tags', ['some.tag']);
+        $this->container->getDefinition('service_four')->addTag('some.tag');
+
+        $this->compile();
+
+        $this->assertEquals(0, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(1, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function itFiltersByNamespace()
+    {
+        $this->setParameter('runopencode.traitor.filter.namespaces', ['RunOpenCode\\Bundle\\Traitor\\Tests\\Fixtures\\Mocks\\Deeper\\EvenMore']);
+
+        $this->compile();
+
+        $this->assertEquals(0, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(1, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function itExcludesTags()
+    {
+        $this->setParameter('runopencode.traitor.exclude.tags', ['some.tag']);
+        $this->container->getDefinition('service_four')->addTag('some.tag');
+
+        $this->compile();
+
+        $this->assertEquals(3, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function itExcludesServices()
+    {
+        $this->setParameter('runopencode.traitor.exclude.services', ['service_four']);
+
+        $this->compile();
+
+        $this->assertEquals(3, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function itExcludesClasses()
+    {
+        $this->setParameter('runopencode.traitor.exclude.classes', [FourthService::class]);
+
+        $this->compile();
+
+        $this->assertEquals(3, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function itExcludesNamespaces()
+    {
+        $this->setParameter('runopencode.traitor.exclude.namespaces', ['RunOpenCode\\Bundle\\Traitor\\Tests\\Fixtures\\Mocks\\Deeper\\EvenMore']);
+
+        $this->compile();
+
+        $this->assertEquals(3, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
+
+    /**
+     * @test
+     */
+    public function itSkipsSyntethicServicesAndNullClasses()
+    {
+        $this->container->getDefinition('service_three')->setClass(null);
+        $this->container->getDefinition('service_four')->setSynthetic(true);
+
+        $this->compile();
+
+        $this->assertEquals(0, count($this->container->getDefinition('service_three')->getMethodCalls()));
+        $this->assertEquals(0, count($this->container->getDefinition('service_four')->getMethodCalls()));
+    }
 
     /**
      * {@inheritdoc}

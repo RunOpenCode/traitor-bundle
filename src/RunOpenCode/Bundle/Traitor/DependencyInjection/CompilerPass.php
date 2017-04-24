@@ -120,9 +120,9 @@ class CompilerPass implements CompilerPassInterface
             }
         }
 
-        foreach ($definition->getTags() as $tag) {
+        foreach ($definition->getTags() as $tag => $attributes) {
 
-            if (isset($tag['name'], $this->filter['tags'][$tag['name']])) {
+            if (isset($this->filter['tags'][$tag])) {
                 return true;
             }
         }
@@ -160,9 +160,9 @@ class CompilerPass implements CompilerPassInterface
             }
         }
 
-        foreach ($definition->getTags() as $tag) {
+        foreach ($definition->getTags() as $tag => $attribures) {
 
-            if (isset($tag['name'], $this->exclude['tags'][$tag['name']])) {
+            if (isset($this->exclude['tags'][$tag])) {
                 return true;
             }
         }
