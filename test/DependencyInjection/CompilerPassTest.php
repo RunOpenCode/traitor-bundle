@@ -23,6 +23,11 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\ExpressionLanguage\Expression;
 
+/**
+ * Class CompilerPassTest
+ *
+ * @package RunOpenCode\Bundle\Traitor\Tests\DependencyInjection
+ */
 class CompilerPassTest extends AbstractCompilerPassTestCase
 {
     public function setUp()
