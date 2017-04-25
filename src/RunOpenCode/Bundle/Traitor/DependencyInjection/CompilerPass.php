@@ -60,11 +60,11 @@ class CompilerPass implements CompilerPassInterface
         ];
 
         if (0 === count($this->filter['tags']) + count($this->filter['namespaces'])) {
-            $this->filter = null;
+            $this->filter = [];
         }
 
         if (0 === count($this->exclude['tags']) + count($this->exclude['namespaces']) + count($this->exclude['classes']) + count($this->exclude['services'])) {
-            $this->exclude = null;
+            $this->exclude = [];
         }
 
         $injectableServices = $this->findInjectableServices($container);
@@ -107,7 +107,7 @@ class CompilerPass implements CompilerPassInterface
      */
     private function isInjectable($serviceId, Definition $definition)
     {
-        if (null === $this->filter) {
+        if (0 === count($this->filter)) {
             return true;
         }
 
@@ -139,7 +139,7 @@ class CompilerPass implements CompilerPassInterface
      */
     private function isExcluded($serviceId, Definition $definition)
     {
-        if (null === $this->exclude) {
+        if (0 === count($this->exclude)) {
             return false;
         }
 
