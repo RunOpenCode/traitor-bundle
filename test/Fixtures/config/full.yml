@@ -1,0 +1,19 @@
+runopencode_traitor:
+    use_common_traits: true
+    inject:
+        'Some\Service\TraitAware':
+            - ['someMethod', [ '@some_service' ]]
+            - ['someOtherMethod', [ '@?some_service' ]]
+        'Some\Other\TraitAware':
+            - { method: 'someMethod',  arguments: [ '%parameter%', 'string_value' ] }
+            - { method: 'anotherMethod',  arguments: [ '@@escaped_service_string'] }
+            - { method: 'yetAnotherMethod',  arguments: [ '@=if(true) false;'] }
+
+    filter:
+        tags: [ 'some.tag' ]
+        namespaces: [ 'Some\Namespace', 'Some\Other\Namespace' ]
+    exclude:
+        tags: [ 'some.tag.to.exclude' ]
+        namespaces: [ 'Some\Namespace\To\Exclude' ]
+        services: [ 'service.to.exclude' ]
+        classes: [ 'Exclude\Some\ClassAsWell' ]

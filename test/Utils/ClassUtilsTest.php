@@ -18,6 +18,11 @@ use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\SecondService;
 use RunOpenCode\Bundle\Traitor\Tests\Fixtures\Mocks\Traits\FirstTrait;
 use RunOpenCode\Bundle\Traitor\Utils\ClassUtils;
 
+/**
+ * Class ClassUtilsTest
+ *
+ * @package RunOpenCode\Bundle\Traitor\Tests\DependencyInjection\Utils
+ */
 class ClassUtilsTest extends TestCase
 {
     /**

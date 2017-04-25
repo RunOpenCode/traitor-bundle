@@ -12,6 +12,11 @@ namespace RunOpenCode\Bundle\Traitor\Tests\DependencyInjection;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use RunOpenCode\Bundle\Traitor\DependencyInjection\Extension;
 
+/**
+ * Class ExtensionTest
+ *
+ * @package RunOpenCode\Bundle\Traitor\Tests\DependencyInjection
+ */
 class ExtensionTest extends AbstractExtensionTestCase
 {
     /**

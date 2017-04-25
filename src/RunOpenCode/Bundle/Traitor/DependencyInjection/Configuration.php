@@ -32,11 +32,23 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->fixXmlConfig('inject')
+            ->beforeNormalization()
+                ->always()
+                ->then(\Closure::bind(function ($value) {
+
+                    if (isset($value['inject']) && count($value['inject']) > 0 && !isset($value['inject'][0]['trait'])) {
+                        $value['inject'] = $this->processInjectionsFromYaml($value['inject']);
+                    }
+
+                    return $value;
+                }, $this))
+            ->end()
             ->children()
                 ->booleanNode('use_common_traits')
                     ->defaultFalse()
                     ->info('For sake of productivity, some of the common Symfony and vendor traits, as well as traits from this library, can be automatically added to "inject" definition.')
                 ->end()
+
                 ->append($this->getInjectionsDefinition())
                 ->append($this->getFiltesDefinition())
                 ->append($this->getExclusionsDefinition())
@@ -147,5 +159,83 @@ class Configuration implements ConfigurationInterface
                 ->end();
 
         return $node;
+    }
+
+    /**
+     * Process injections loaded from YAML configuration.
+     *
+     * @param array $injections
+     * @return array
+     */
+    private function processInjectionsFromYaml(array $injections)
+    {
+        $processed = [];
+
+        foreach ($injections as $trait => $calls) {
+
+            $processed[] = [
+                'trait' => $trait,
+                'call' => call_user_func(function($calls) {
+
+                    $processed = [];
+
+                    foreach ($calls as $call) {
+                        $processed[] = [
+                            'method' => isset($call['method']) ? $call['method'] : $call[0],
+                            'argument' => call_user_func(function($arguments) {
+
+                                $resolveArguments = function($value) use (&$resolveArguments) {
+                                    if (is_array($value)) {
+                                        $value = array_map($resolveArguments, $value);
+                                    } elseif (is_string($value) && 0 === strpos($value, '@=')) {
+
+                                        return [
+                                            'type' => 'expression',
+                                            'value' => substr($value, 2),
+                                        ];
+
+                                    } elseif (is_string($value) && 0 === strpos($value, '@')) {
+
+                                        if (0 === strpos($value, '@@')) {
+
+                                            return [
+                                                'value' => substr($value, 1)
+                                            ];
+                                        } elseif (0 === strpos($value, '@?')) {
+                                            $value = substr($value, 2);
+                                            $invalidBehavior = 'ignore';
+                                        } else {
+                                            $value = substr($value, 1);
+                                            $invalidBehavior = 'exception';
+                                        }
+
+                                        if ('=' === substr($value, -1)) {
+                                            $value = substr($value, 0, -1);
+                                        }
+
+
+                                        return [
+                                            'type' => 'service',
+                                            'id' => $value,
+                                            'on_invalid' => $invalidBehavior,
+                                        ];
+                                    }
+
+                                    return $value;
+                                };
+
+                                return $resolveArguments($arguments);
+
+                            }, isset($call['arguments']) ? $call['arguments'] : $call[1])
+                        ];
+                    }
+
+                    return $processed;
+
+                }, $calls)
+            ];
+        }
+
+        return $processed;
     }
 }
