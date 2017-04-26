@@ -186,6 +186,7 @@ and configure it, example of full configuration is given bellow:
             tags: [ 'form.type', 'other_tag' ]
             namespaces: [ '\Namespace\Prefix1', 'Namespace\Prefix2' ]
         exclude:
+            tags: [ 'tag.to.exclude' ]
             services: [ 'my.service.to_exclude' ]
             classes: [ '\Exclude\Services\ThatUsesThisClass', '\Or\Uses\ThisClass' ]
             namespaces: [ '\Exclude\AllServices\WithClasses\WithinThisNamespace\' ]
@@ -207,8 +208,8 @@ and `atributes`.
 narrow down the subset to certain namespaces and/or service tags. Determining 
 which class uses which trait can be expensive, this bundle checks both inheritance
 as well as related traits usage (e.g. if trait uses trait).
-- `exclude`: Optional. You can exclude certain services, service classes and 
-namespaces to be even considered for this kind of injection.
+- `exclude`: Optional. You can exclude certain services, tagged services, service
+classes and namespaces to be even considered for this kind of injection.
 
 ### XML configuration
 
