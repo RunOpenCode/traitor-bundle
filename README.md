@@ -16,7 +16,8 @@ service classes.
 **Before you start using this bundle** please read following article (if you 
 have not already): [http://symfony.com/doc/current/components/dependency_injection/types.html](http://symfony.com/doc/current/components/dependency_injection/types.html), 
 it is imperative that you fully understand types of injection because this
-bundle promotes bad practice in order to gain higher level of productivity.
+bundle promotes setter injection (which is considered as non-preferred method
+when comparing to constructor injection) in order to get higher level of productivity.
 
 **We would like you to read carefully this "readme" file as well and understand
 what this bundle does, with all its benefits and drawbacks, before using it, 
@@ -35,7 +36,7 @@ enough to use some kind of provided, or user defined, `*AwareTrait` and this
 bundle will provide appropriate injection (if it is configured properly, of 
 course).
 
-### Why the hell you would even consider such travesty? 
+### Why would you consider such method of defining setter injection?
 
 Consider that you already have defined services in your service container
 which requires additional injection of, per example, services that will be
@@ -120,6 +121,10 @@ in need of injection of additional services.
 
 So, we needed a solution that will handle this more elegantly, with less effort.
 
+There are other similar solutions out there as well,
+like [JMSDiExtraBundle](http://jmsyst.com/bundles/JMSDiExtraBundle)
+which allows you to achieve the same via annotations.
+
 ## Why this bundle should be used carefully?
 
 - Setter injection should be used for optional injections only. However, this
@@ -138,9 +143,9 @@ as well as inheritance map of classes, as well as related usage of traits.
 However, trough configuration, you can narrow down a scope of search and 
 increase performances of compiler pass.
 
-Having in mind all dangers stated above, this bundle can help you 
+Having in mind all dangers stated above, this bundle can help you
 a lot in certain use cases, giving you a flexibility and productivity at the
-cost of good coding practice, and you should use this bundle in such 
+cost of good coding practice, and you should use this bundle in such
 occurrences.
 
 Please note that this bundle **should not be used for redistributable Symfony
@@ -174,7 +179,9 @@ and configure it, example of full configuration is given bellow:
     runopencode_traitor:
         use_common_traits: false             
         inject:
-            'Full\Qualified\Trait\Namespace': [ 'setterMethodName', [ '@service_name', 'or_parameter_value' ]]
+            'Full\Qualified\Trait\Namespace':
+                - [ 'setterMethodName', [ '@service_name', 'or_parameter_value' ]]
+                - { method: 'otherSetterMethodName', arguments: [ '@service_name', 'or_parameter_value' ] }
         filters:
             tags: [ 'form.type', 'other_tag' ]
             namespaces: [ '\Namespace\Prefix1', 'Namespace\Prefix2' ]
@@ -194,13 +201,21 @@ you can use *out-of-the-box* are given bellow.
 and if they are used in service class, trait map defines setter injection
 in same way as Symfony `calls` definition does, an array, with first parameter
 that defines a method to call, and second parameter as array of arguments to
-pass to that method call.
+pass to that method call, or, you can use associative array with keys `method`
+and `atributes`.
 - `filters`: Optional. In order not to scan all service classes, you can
 narrow down the subset to certain namespaces and/or service tags. Determining 
 which class uses which trait can be expensive, this bundle checks both inheritance
 as well as related traits usage (e.g. if trait uses trait).
 - `exclude`: Optional. You can exclude certain services, service classes and 
 namespaces to be even considered for this kind of injection.
+
+### XML configuration
+
+You can, of course, configure bundle via XML configuration (preferred way),
+and in doing so, there is
+[XML Schema](src/RunOpenCode/Bundle/Traitor/Resources/config/schema/configuration-1.0.0.xsd) file available to you for validation
+and intelli sense for your configration.
 
 ### Provided common traits
 
