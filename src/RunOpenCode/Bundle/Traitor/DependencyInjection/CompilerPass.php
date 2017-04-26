@@ -47,16 +47,25 @@ class CompilerPass implements CompilerPassInterface
             return;
         }
 
+        $getParameterOrDefault = function ($name, $default = []) use ($container) {
+
+            if ($container->hasParameter($name)) {
+                return $container->getParameter($name);
+            }
+
+            return $default;
+        };
+
         $this->injectables = $container->getParameter('runopencode.traitor.injectables');
         $this->filter = [
-            'tags' => ($container->hasParameter('runopencode.traitor.filter.tags')) ? array_combine($tags = $container->getParameter('runopencode.traitor.filter.tags'), $tags) : [],
-            'namespaces' => ($container->hasParameter('runopencode.traitor.filter.namespaces')) ? $container->getParameter('runopencode.traitor.filter.namespaces') : [],
+            'tags' => array_combine($tags = $getParameterOrDefault('runopencode.traitor.filter.tags'), $tags),
+            'namespaces' => $getParameterOrDefault('runopencode.traitor.filter.namespaces'),
         ];
         $this->exclude = [
-            'tags' => ($container->hasParameter('runopencode.traitor.exclude.tags')) ? array_combine($tags = $container->getParameter('runopencode.traitor.exclude.tags'), $tags) : [],
-            'namespaces' => ($container->hasParameter('runopencode.traitor.exclude.namespaces')) ? $container->getParameter('runopencode.traitor.exclude.namespaces') : [],
-            'classes' => ($container->hasParameter('runopencode.traitor.exclude.classes')) ? array_combine($classes = $container->getParameter('runopencode.traitor.exclude.classes'), $classes) : [],
-            'services' => ($container->hasParameter('runopencode.traitor.exclude.services')) ? array_combine($services = $container->getParameter('runopencode.traitor.exclude.services'), $services) : [],
+            'tags' => array_combine($tags = $getParameterOrDefault('runopencode.traitor.exclude.tags'), $tags),
+            'namespaces' => $getParameterOrDefault('runopencode.traitor.exclude.namespaces'),
+            'classes' => array_combine($classes = $getParameterOrDefault('runopencode.traitor.exclude.classes'), $classes),
+            'services' => array_combine($services = $getParameterOrDefault('runopencode.traitor.exclude.services'), $services),
         ];
 
         if (0 === count($this->filter['tags']) + count($this->filter['namespaces'])) {
